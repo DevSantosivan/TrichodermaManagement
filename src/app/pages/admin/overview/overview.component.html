@@ -1,0 +1,257 @@
+<div class="max-w-6xl mx-auto p-6 bg-[#0d0d0d] min-h-screen text-gray-200">
+  <!-- Title -->
+  <div class="flex flex-col items-start mb-8">
+    <h1 class="text-2xl font-bold text-gray-200">Overview</h1>
+    <p class="text-sm text-gray-400">
+      Dashboard summary of Trichoderma farming system
+    </p>
+  </div>
+
+  <!-- Summary Cards (grid) -->
+  <!-- Summary Cards -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+    <!-- Total Crop Types -->
+    <div
+      class="bg-[#111111] rounded-xl p-5 border border-[#1f1f1f] flex flex-col"
+    >
+      <!-- Header with icon -->
+      <div class="flex items-center space-x-3 mb-4">
+        <div
+          class="w-10 h-10 bg-[#1a1a1a] rounded-lg flex items-center justify-center"
+        >
+          <i class="bx bx-leaf text-[#3ae68d] text-xl"></i>
+        </div>
+        <div>
+          <h3 class="text-base font-semibold text-gray-200">Total Crops</h3>
+          <p class="text-sm text-gray-400">Crop Types</p>
+        </div>
+      </div>
+
+      <!-- Number -->
+      <p class="text-4xl font-bold text-gray-100 mb-4">
+        {{ crops.length || 0 }}
+      </p>
+
+      <!-- Bottom text -->
+      <p class="text-xs text-gray-500 mt-auto">Updated today</p>
+    </div>
+
+    <!-- Video Tutorials -->
+    <div
+      class="bg-[#111111] rounded-xl p-5 border border-[#1f1f1f] flex flex-col"
+    >
+      <div class="flex items-center space-x-3 mb-4">
+        <div
+          class="w-10 h-10 bg-[#1a1a1a] rounded-lg flex items-center justify-center"
+        >
+          <i class="bx bx-video text-[#3ae68d] text-xl"></i>
+        </div>
+        <div>
+          <h3 class="text-base font-semibold text-gray-200">Videos</h3>
+          <p class="text-sm text-gray-400">Tutorial Count</p>
+        </div>
+      </div>
+
+      <p class="text-4xl font-bold text-gray-100 mb-4">
+        {{ totalVideos }}
+      </p>
+
+      <p class="text-xs text-gray-500 mt-auto">Updated today</p>
+    </div>
+
+    <!-- Price Card -->
+    <div
+      class="bg-[#111111] rounded-xl p-5 border border-[#1f1f1f] flex flex-col"
+    >
+      <div class="flex items-center space-x-3 mb-4">
+        <div
+          class="w-10 h-10 bg-[#1a1a1a] rounded-lg flex items-center justify-center"
+        >
+          <i class="bx bx-coin text-[#3ae68d] text-xl"></i>
+        </div>
+        <div>
+          <h3 class="text-base font-semibold text-gray-200">Price</h3>
+          <p class="text-sm text-gray-400">Trichoderma / kg</p>
+        </div>
+      </div>
+
+      <p class="text-4xl font-bold text-green-300 mb-2">
+        ₱{{ trichodermaPrice | number : "1.2-2" }}
+      </p>
+
+      <p class="text-xs text-gray-500 mb-4">
+        Last updated: {{ lastUpdated | date : "mediumTime" }}
+      </p>
+
+      <button
+        (click)="openEditPriceModal()"
+        class="w-full py-2.5 bg-[#0f6b49] border border-[#1ea26f] text-white font-medium rounded-lg hover:bg-[#0c5c3f] transition-colors duration-200"
+      >
+        Update
+      </button>
+    </div>
+  </div>
+
+  <!-- Crops Table / Grid Toggle -->
+  <div>
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-lg font-semibold text-gray-200 flex items-center">
+        Crop Types Applicable for Trichoderma
+      </h2>
+
+      <div class="flex items-center space-x-2">
+        <!-- LIST VIEW BUTTON -->
+        <button
+          (click)="toggleGridView(false)"
+          [ngClass]="
+            !isGridView ? 'bg-[#3ae68d] text-black' : 'bg-[#161616] text-white'
+          "
+          class="px-3 py-1 rounded border border-[#1f1f1f]"
+        >
+          <i class="bx bx-list-ul text-xl"></i>
+        </button>
+
+        <!-- GRID VIEW BUTTON -->
+        <button
+          (click)="toggleGridView(true)"
+          [ngClass]="
+            isGridView ? 'bg-[#3ae68d] text-black' : 'bg-[#161616] text-white'
+          "
+          class="px-3 py-1 rounded border border-[#1f1f1f]"
+        >
+          <i class="bx bx-grid-alt text-xl"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Table View -->
+    <table
+      *ngIf="!isGridView"
+      class="w-full border border-[#1f1f1f] rounded-lg overflow-hidden text-sm"
+    >
+      <thead class="bg-[#111] border-b border-[#1f1f1f]">
+        <tr>
+          <th
+            class="px-4 py-3 text-gray-300 font-semibold border-r border-[#1f1f1f]"
+          >
+            Image
+          </th>
+          <th
+            class="px-4 py-3 text-gray-300 font-semibold border-r border-[#1f1f1f]"
+          >
+            Title (EN / TL)
+          </th>
+          <th class="px-4 py-3 text-gray-300 font-semibold">
+            Description (EN / TL)
+          </th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr
+          *ngFor="let crop of crops"
+          class="hover:bg-[#151515] transition-colors border-b border-[#1f1f1f]"
+        >
+          <!-- IMAGE -->
+          <td class="px-4 py-3 border-r border-[#1f1f1f]">
+            <img
+              [src]="crop.image_url || 'assets/images/placeholder.png'"
+              alt="{{ crop.title_en }}"
+              class="w-10 h-10 object-cover rounded-full"
+            />
+          </td>
+
+          <!-- NAME -->
+          <td
+            class="px-4 py-3 text-gray-200 font-medium border-r border-[#1f1f1f]"
+          >
+            {{ crop.title_en }}
+            <span class="text-gray-500">/ {{ crop.title_tl }}</span>
+          </td>
+
+          <!-- DESCRIPTION -->
+          <td class="px-4 py-3 text-gray-400">
+            {{ crop.description_en }}
+            <span class="text-gray-600">/ {{ crop.description_tl }}</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Grid View -->
+    <div
+      *ngIf="isGridView"
+      class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+    >
+      <div
+        *ngFor="let crop of crops"
+        class="bg-[#111111] p-5 rounded-lg border border-[#1f1f1f]"
+      >
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="text-lg font-bold text-gray-100 truncate">
+            {{ crop.title_en }} / {{ crop.title_tl }}
+          </h3>
+          <i class="bx bx-leaf text-[#3ae68d] text-xl"></i>
+        </div>
+        <img
+          [src]="crop.image_url || 'assets/images/placeholder.png'"
+          class="w-full h-40 object-cover rounded-lg mb-2"
+        />
+        <p class="text-sm text-gray-400 truncate">
+          {{ crop.description_en }} / {{ crop.description_tl }}
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PRICE UPDATE MODAL -->
+<div
+  *ngIf="showPriceModal"
+  class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[9999]"
+>
+  <div
+    class="bg-[#111111] border border-[#1f1f1f] rounded-xl p-6 w-full max-w-md text-gray-200 shadow-xl"
+  >
+    <!-- Modal Header -->
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-xl font-semibold">Update Price</h2>
+      <button
+        class="text-gray-400 hover:text-gray-200"
+        (click)="closePriceModal()"
+      >
+        ✖
+      </button>
+    </div>
+
+    <!-- Input -->
+    <label class="text-sm text-gray-400">Trichoderma Price (₱)</label>
+    <input
+      type="number"
+      [(ngModel)]="newPrice"
+      class="w-full mt-1 bg-[#0d0d0d] border border-[#1f1f1f] text-gray-200 rounded-lg p-3 focus:outline-none focus:border-[#3ae68d]"
+      placeholder="Enter new price"
+    />
+
+    <p class="text-xs text-gray-500 mt-1">
+      Last updated: {{ lastUpdated | date : "medium" }}
+    </p>
+
+    <!-- Buttons -->
+    <div class="flex justify-end space-x-2 mt-6">
+      <button
+        class="px-4 py-2 bg-[#1a1a1a] border border-[#1f1f1f] rounded-lg text-gray-300 hover:bg-[#222]"
+        (click)="closePriceModal()"
+      >
+        Cancel
+      </button>
+
+      <button
+        class="w-full py-2.5 bg-[#0f6b49] border border-[#1ea26f] text-white font-medium rounded-lg hover:bg-[#0c5c3f] transition-colors duration-200"
+        (click)="updatePrice()"
+      >
+        Save
+      </button>
+    </div>
+  </div>
+</div>

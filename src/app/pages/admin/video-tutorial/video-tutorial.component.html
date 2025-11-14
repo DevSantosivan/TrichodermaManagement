@@ -1,0 +1,425 @@
+<!-- video-manager.component.html -->
+<div class="max-w-6xl mx-auto p-6 bg-[#0d0d0d] min-h-screen text-gray-200">
+  <!-- Header -->
+  <div
+    class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4"
+  >
+    <div>
+      <h1 class="text-2xl font-bold text-gray-200">
+        <span>Crop Video Manager</span>
+      </h1>
+      <p class="text-gray-400 mt-1">
+        Manage crop videos, upload files, and update info
+      </p>
+    </div>
+
+    <div
+      class="flex flex-wrap items-center gap-3 w-full sm:w-auto mt-4 sm:mt-0"
+    >
+      <!-- View Toggle -->
+      <button
+        (click)="viewMode = 'list'"
+        [class.bg-[#3ae68d]]="viewMode === 'list'"
+        [class.text-black]="viewMode === 'list'"
+        [class.bg-[#161616]]="viewMode !== 'list'"
+        class="px-3 py-1 rounded border border-[#1ea26f] hover:bg-[#0f6b49] transition"
+        title="List"
+      >
+        <i class="bx bx-list-ul"></i>
+      </button>
+      <button
+        (click)="viewMode = 'grid'"
+        [class.bg-[#3ae68d]]="viewMode === 'grid'"
+        [class.text-black]="viewMode === 'grid'"
+        [class.bg-[#161616]]="viewMode !== 'grid'"
+        class="px-3 py-1 rounded border border-[#1ea26f] hover:bg-[#0f6b49] transition"
+        title="Grid"
+      >
+        <i class="bx bx-grid-alt"></i>
+      </button>
+
+      <!-- Search -->
+      <input
+        type="search"
+        [(ngModel)]="searchText"
+        placeholder="Search videos..."
+        class="border border-[#1f1f1f] rounded px-3 py-2 bg-[#111111] text-gray-200 focus:outline-none focus:ring-2 focus:ring-[#3ae68d] w-full sm:w-64"
+      />
+
+      <!-- Add Video -->
+      <button
+        (click)="openAddForm()"
+        class="p-2 bg-[#0f6b49] border border-[#1ea26f] text-white font-medium rounded-lg hover:bg-[#0c5c3f] transition-colors duration-200"
+      >
+        Add Video
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="flex justify-center items-center h-64">
+    <svg
+      class="animate-spin h-10 w-10 text-[#3ae68d]"
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+    >
+      <circle
+        class="opacity-25"
+        cx="12"
+        cy="12"
+        r="10"
+        stroke="currentColor"
+        stroke-width="4"
+      ></circle>
+      <path
+        class="opacity-75"
+        fill="currentColor"
+        d="M4 12a8 8 0 018-8v8H4z"
+      ></path>
+    </svg>
+  </div>
+
+  <!-- No Videos -->
+  <div
+    *ngIf="!loading && videos.length === 0"
+    class="text-center py-16 text-gray-500"
+  >
+    🌱 No videos found.
+  </div>
+
+  <!-- LIST VIEW -->
+  <!-- LIST VIEW (TABLE FORMAT for VIDEOS) -->
+  <div
+    *ngIf="!loading && videos.length > 0 && viewMode === 'list'"
+    class="mt-4"
+  >
+    <table
+      class="w-full border border-[#1f1f1f] rounded-xl overflow-hidden text-sm"
+    >
+      <thead class="bg-[#111111] border-b border-[#1f1f1f]">
+        <tr>
+          <th
+            class="px-4 py-3 text-gray-300 font-semibold border-r border-[#1f1f1f]"
+          >
+            Video
+          </th>
+          <th
+            class="px-4 py-3 text-gray-300 font-semibold border-r border-[#1f1f1f]"
+          >
+            Crop Type
+          </th>
+          <th
+            class="px-4 py-3 text-gray-300 font-semibold border-r border-[#1f1f1f]"
+          >
+            Title
+          </th>
+          <th
+            class="px-4 py-3 text-gray-300 font-semibold border-r border-[#1f1f1f]"
+          >
+            Description
+          </th>
+          <th class="px-4 py-3 text-gray-300 font-semibold w-20">Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr
+          *ngFor="let video of filteredVideos()"
+          class="hover:bg-[#151515] transition border-b border-[#1f1f1f] cursor-pointer"
+          (click)="playVideo(video)"
+        >
+          <!-- VIDEO THUMBNAIL -->
+          <td class="px-4 py-3 border-r border-[#1f1f1f] relative">
+            <div class="relative w-32 h-20">
+              <video
+                [src]="video.url"
+                muted
+                class="w-full h-full object-cover rounded-lg bg-black"
+              ></video>
+
+              <!-- Play Overlay -->
+              <div
+                class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40 rounded-lg opacity-0 hover:opacity-100 transition"
+              >
+                <span class="text-white text-2xl">▶️</span>
+              </div>
+            </div>
+          </td>
+
+          <!-- CROP TYPE -->
+          <td
+            class="px-4 py-3 text-gray-200 font-medium border-r border-[#1f1f1f]"
+          >
+            {{ video.croptype }}
+          </td>
+
+          <!-- TITLE -->
+          <td
+            class="px-4 py-3 text-gray-300 font-medium border-r border-[#1f1f1f]"
+          >
+            {{ video.title }}
+          </td>
+
+          <!-- DESCRIPTION -->
+          <td class="px-4 py-3 text-gray-400 border-r border-[#1f1f1f]">
+            <p class="line-clamp-2">
+              {{ video.description }}
+            </p>
+          </td>
+
+          <!-- ACTION BUTTONS -->
+          <td
+            class="px-4 py-3 text-center relative"
+            (click)="$event.stopPropagation()"
+          >
+            <button
+              (click)="toggleMenu(video.id!)"
+              class="p-2 rounded-full hover:bg-[#222] text-gray-300 transition"
+            >
+              ⋮
+            </button>
+
+            <!-- Dropdown Menu -->
+            <div
+              *ngIf="showMenuForId === video.id"
+              class="absolute right-2 top-12 bg-[#111] border border-[#2b2b2b] rounded-lg shadow-xl w-32 z-20"
+            >
+              <button
+                (click)="openEdit(video)"
+                class="w-full text-left px-4 py-2 hover:bg-[#2a2a2a] text-[#3ae68d]"
+              >
+                ✏️ Edit
+              </button>
+
+              <button
+                (click)="deleteVideo(video.id)"
+                class="w-full text-left px-4 py-2 hover:bg-red-900/40 text-red-400"
+              >
+                🗑️ Delete
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- GRID VIEW -->
+  <div
+    *ngIf="!loading && videos.length > 0 && viewMode === 'grid'"
+    class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"
+  >
+    <div
+      *ngFor="let video of filteredVideos()"
+      class="bg-[#111111] rounded-xl p-4 border border-[#1f1f1f] hover:bg-[#161616] transition relative cursor-pointer group"
+      (click)="playVideo(video)"
+    >
+      <div class="relative">
+        <video
+          class="w-full h-40 object-cover rounded mb-2 bg-black"
+          [src]="video.url"
+          muted
+        ></video>
+        <div
+          class="absolute inset-0 flex justify-center items-center bg-black bg-opacity-30 rounded opacity-0 group-hover:opacity-100 transition"
+        >
+          <span class="text-white text-4xl">▶️</span>
+        </div>
+      </div>
+
+      <h2 class="font-semibold text-lg text-[#3ae68d] truncate">
+        {{ video.title }}
+      </h2>
+      <p class="text-sm text-gray-400 line-clamp-2">{{ video.description }}</p>
+
+      <div class="absolute top-3 right-3" (click)="$event.stopPropagation()">
+        <button
+          (click)="toggleMenu(video.id!)"
+          class="p-2 rounded-full hover:bg-[#1a1a1a] transition text-gray-300"
+        >
+          ⋮
+        </button>
+
+        <div
+          *ngIf="showMenuForId === video.id"
+          class="absolute right-0 top-10 bg-[#161616] border border-[#1f1f1f] rounded-lg shadow-lg w-36 z-20"
+        >
+          <button
+            (click)="openEdit(video)"
+            class="w-full text-left px-4 py-2 hover:bg-[#1a1a1a] text-[#3ae68d]"
+          >
+            Edit
+          </button>
+          <button
+            (click)="deleteVideo(video.id)"
+            class="w-full text-left px-4 py-2 hover:bg-red-900/40 text-red-400"
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VIDEO PLAYER MODAL -->
+  <div
+    *ngIf="selectedVideo"
+    class="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center p-6 z-40"
+  >
+    <div
+      class="bg-[#111111] rounded-xl max-w-5xl w-full relative shadow-2xl border border-[#1f1f1f]"
+    >
+      <button
+        (click)="selectedVideo = null"
+        class="absolute top-4 right-4 text-gray-300 hover:text-gray-100 text-3xl font-bold"
+      >
+        &times;
+      </button>
+      <h3
+        class="text-2xl font-bold p-6 border-b border-[#1f1f1f] text-[#3ae68d]"
+      >
+        ▶️ Now Playing: {{ selectedVideo.title }}
+      </h3>
+      <video
+        class="w-full h-[60vh] bg-black"
+        controls
+        [src]="selectedVideo.url"
+      ></video>
+    </div>
+  </div>
+
+  <!-- ADD / EDIT MODAL -->
+  <div
+    *ngIf="isEditing"
+    class="fixed inset-0 flex justify-center items-center z-50 p-4 bg-black/50 backdrop-blur-sm"
+  >
+    <div
+      class="bg-[#111111] rounded-xl max-w-xl w-full p-8 shadow-2xl border border-[#1f1f1f] relative overflow-y-auto max-h-[90vh]"
+    >
+      <button
+        (click)="cancelEdit()"
+        class="absolute top-4 right-4 text-gray-400 hover:text-gray-200 text-3xl font-bold"
+      >
+        &times;
+      </button>
+      <h2 class="text-2xl font-semibold mb-4 text-[#3ae68d]">
+        {{ editedVideo.id ? "Edit Video" : "Add Video" }}
+      </h2>
+
+      <form (ngSubmit)="saveVideo()" class="space-y-4">
+        <div>
+          <label for="videoFile" class="block text-sm text-gray-300 mb-1"
+            >Upload Video File</label
+          >
+          <input
+            id="videoFile"
+            type="file"
+            accept="video/*"
+            (change)="onFileSelected($event)"
+            class="w-full border border-[#1f1f1f] rounded px-3 py-2 bg-[#0f0f0f] text-gray-200"
+          />
+          <p *ngIf="selectedFile" class="text-sm text-gray-400 mt-1">
+            Selected: {{ selectedFile.name }}
+          </p>
+        </div>
+
+        <div>
+          <label for="cropType" class="block text-sm text-gray-300 mb-1"
+            >Crop Type</label
+          >
+          <select
+            id="cropType"
+            [(ngModel)]="editedVideo.croptype"
+            name="cropType"
+            required
+            class="w-full border border-[#1f1f1f] rounded px-3 py-2 bg-[#0f0f0f] text-gray-200"
+          >
+            <option value="" disabled>Select crop</option>
+            <option *ngFor="let crop of crops" [value]="crop.title_en">
+              {{ crop.title_en }}
+            </option>
+          </select>
+        </div>
+
+        <div>
+          <label for="title" class="block text-sm text-gray-300 mb-1"
+            >Title</label
+          >
+          <input
+            id="title"
+            type="text"
+            [(ngModel)]="editedVideo.title"
+            name="title"
+            required
+            class="w-full border border-[#1f1f1f] rounded px-3 py-2 bg-[#0f0f0f] text-gray-200"
+          />
+        </div>
+
+        <div>
+          <label for="description" class="block text-sm text-gray-300 mb-1"
+            >Description</label
+          >
+          <textarea
+            id="description"
+            [(ngModel)]="editedVideo.description"
+            name="description"
+            rows="3"
+            class="w-full border border-[#1f1f1f] rounded px-3 py-2 bg-[#0f0f0f] text-gray-200"
+          ></textarea>
+        </div>
+
+        <button
+          type="submit"
+          class="w-full bg-[#3ae68d] text-black px-4 py-2 rounded hover:bg-[#2fd67d] transition"
+        >
+          {{ editedVideo.id ? "Update Video" : "Add Video" }}
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+<!-- TOAST -->
+<div
+  *ngIf="toast.show"
+  class="fixed top-5 right-5 z-[9999] min-w-[300px] max-w-[360px] rounded-xl px-5 py-4 border border-[#1e1e1e] bg-[#111111] text-gray-300 shadow-[0_0_15px_rgba(0,0,0,0.4)] flex items-center justify-between transition-all duration-300"
+  [style.opacity]="toast.show ? '1' : '0'"
+  [style.transform]="toast.show ? 'translateY(0)' : 'translateY(-10px)'"
+>
+  <!-- Left side: spinner + message -->
+  <div class="flex items-center space-x-3">
+    <!-- Spinner -->
+    <svg
+      *ngIf="toast.type === 'loading'"
+      class="animate-spin h-4 w-4 text-gray-400"
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+    >
+      <circle
+        class="opacity-25"
+        cx="12"
+        cy="12"
+        r="10"
+        stroke="currentColor"
+        stroke-width="4"
+      ></circle>
+      <path
+        class="opacity-75"
+        fill="currentColor"
+        d="M4 12a8 8 0 018-8v8H4z"
+      ></path>
+    </svg>
+
+    <!-- Message -->
+    <p class="text-sm font-medium">{{ toast.message }}</p>
+  </div>
+
+  <!-- Close Button -->
+  <button
+    (click)="hideToast()"
+    class="text-gray-500 hover:text-gray-300 text-lg leading-none"
+  >
+    ✕
+  </button>
+</div>

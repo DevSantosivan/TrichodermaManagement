@@ -1,0 +1,89 @@
+<div class="max-w-6xl mx-auto p-6 bg-[#0d0d0d] min-h-screen text-gray-200">
+  <h1 class="text-2xl font-semibold mb-8">Preferences</h1>
+
+  <!-- PROFILE INFORMATION CARD -->
+  <div class="bg-[#111111] border border-[#1f1f1f] rounded-xl p-6 mb-8">
+    <h2 class="text-lg font-semibold mb-6">Profile Information</h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- FIRST NAME -->
+      <div>
+        <label class="block text-gray-400 mb-1">First name</label>
+        <input
+          type="text"
+          [(ngModel)]="firstName"
+          class="w-full bg-[#151515] border border-[#1f1f1f] rounded-md p-3 outline-none text-gray-200"
+        />
+      </div>
+
+      <!-- LAST NAME -->
+      <div>
+        <label class="block text-gray-400 mb-1">Last name</label>
+        <input
+          type="text"
+          [(ngModel)]="lastName"
+          class="w-full bg-[#151515] border border-[#1f1f1f] rounded-md p-3 outline-none text-gray-200"
+        />
+      </div>
+
+      <!-- PRIMARY EMAIL -->
+      <div>
+        <label class="block text-gray-400 mb-1">Primary email</label>
+
+        <select
+          [(ngModel)]="primaryEmail"
+          class="w-full bg-[#151515] border border-[#1f1f1f] rounded-md p-3 outline-none text-gray-200"
+        >
+          <option>{{ email }}</option>
+        </select>
+
+        <p class="text-xs text-gray-500 mt-1">
+          Primary email is used for account notifications.
+        </p>
+      </div>
+
+      <!-- USERNAME -->
+      <div>
+        <label class="block text-gray-400 mb-1">Username</label>
+        <input
+          type="text"
+          [(ngModel)]="username"
+          class="w-full bg-[#151515] border border-[#1f1f1f] rounded-md p-3 outline-none text-gray-200"
+        />
+        <p class="text-xs text-gray-500 mt-1">
+          Username appears as a display name throughout the dashboard.
+        </p>
+      </div>
+    </div>
+
+    <div class="flex justify-end mt-6">
+      <button
+        (click)="saveChanges()"
+        class="px-6 py-2 bg-[#3ae68d] text-black rounded-md font-semibold hover:bg-[#2fd67d] transition"
+      >
+        Save
+      </button>
+    </div>
+  </div>
+
+  <!-- ACCOUNT IDENTITIES -->
+  <div class="bg-[#111111] border border-[#1f1f1f] rounded-xl p-6">
+    <h2 class="text-lg font-semibold mb-6">Account Identities</h2>
+
+    <div
+      class="flex items-center justify-between bg-[#151515] border border-[#1f1f1f] p-4 rounded-lg"
+    >
+      <div>
+        <p class="text-gray-300 font-medium">Email</p>
+        <p class="text-gray-500">{{ email }}</p>
+      </div>
+
+      <button
+        class="px-4 py-2 border border-[#3ae68d]/40 text-[#3ae68d] rounded-md hover:bg-[#1b2a22] transition"
+        (click)="resetPassword()"
+      >
+        Reset password
+      </button>
+    </div>
+  </div>
+</div>

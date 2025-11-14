@@ -1,0 +1,391 @@
+<div class="max-w-6xl mx-auto p-6 bg-[#0d0d0d] min-h-screen text-gray-200">
+  <!-- Header -->
+  <div
+    class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4"
+  >
+    <div>
+      <h1 class="text-2xl font-bold text-gray-200">
+        <span>Crop Manager</span>
+      </h1>
+      <p class="text-gray-400 mt-1">
+        Manage crop details and bilingual content
+      </p>
+    </div>
+
+    <div class="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+      <!-- View Toggle -->
+      <div class="flex space-x-1">
+        <button
+          (click)="viewMode = 'list'"
+          [class.bg-[#3ae68d]]="viewMode === 'list'"
+          [class.text-black]="viewMode === 'list'"
+          [class.bg-[#161616]]="viewMode !== 'list'"
+          class="px-3 py-1 rounded border border-[#1f1f1f] hover:bg-[#1a1a1a] transition"
+        >
+          <i class="bx bx-list-ul text-xl"></i>
+        </button>
+
+        <button
+          (click)="viewMode = 'grid'"
+          [class.bg-[#3ae68d]]="viewMode === 'grid'"
+          [class.text-black]="viewMode === 'grid'"
+          [class.bg-[#161616]]="viewMode !== 'grid'"
+          class="px-3 py-1 rounded border border-[#1f1f1f] hover:bg-[#1a1a1a] transition"
+        >
+          <i class="bx bx-grid-alt text-xl"></i>
+        </button>
+      </div>
+
+      <!-- Search -->
+      <input
+        type="search"
+        [(ngModel)]="searchText"
+        placeholder="Search crops..."
+        class="border border-[#2c2c2c] bg-[#111] text-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 flex-grow sm:flex-grow-0"
+      />
+
+      <!-- Add Crop -->
+      <button
+        (click)="openAddForm()"
+        class="px-4 py-2 bg-[#3ae68d] text-black rounded-lg hover:bg-[#2fd67d] transition text-sm font-semibold"
+      >
+        <span>Add Crop</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="flex justify-center items-center h-64">
+    <svg
+      class="animate-spin h-10 w-10 text-green-400"
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+    >
+      <circle
+        class="opacity-25"
+        cx="12"
+        cy="12"
+        r="10"
+        stroke="currentColor"
+        stroke-width="4"
+      ></circle>
+      <path
+        class="opacity-75"
+        fill="currentColor"
+        d="M4 12a8 8 0 018-8v8H4z"
+      ></path>
+    </svg>
+  </div>
+
+  <!-- Empty State -->
+  <div
+    *ngIf="!loading && crops.length === 0"
+    class="text-center py-16 text-gray-400"
+  >
+    🌱 No crops found.
+  </div>
+
+  <!-- LIST VIEW (TABLE STYLE) -->
+  <div *ngIf="viewMode === 'list'">
+    <table
+      class="w-full border border-[#1f1f1f] rounded-xl overflow-hidden text-sm"
+    >
+      <thead class="bg-[#111111] border-b border-[#1f1f1f]">
+        <tr>
+          <th
+            class="px-4 py-3 text-gray-300 font-semibold border-r border-[#1f1f1f]"
+          >
+            Image
+          </th>
+          <th
+            class="px-4 py-3 text-gray-300 font-semibold border-r border-[#1f1f1f]"
+          >
+            Title (EN / TL)
+          </th>
+          <th
+            class="px-4 py-3 text-gray-300 font-semibold border-r border-[#1f1f1f]"
+          >
+            Description (EN / TL)
+          </th>
+          <th class="px-4 py-3 text-gray-300 font-semibold w-20">Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr
+          *ngFor="let crop of filteredCrops()"
+          class="hover:bg-[#151515] transition-colors border-b border-[#1f1f1f]"
+        >
+          <!-- IMAGE -->
+          <td class="px-4 py-3 border-r border-[#1f1f1f]">
+            <img
+              [src]="crop.image_url"
+              alt="{{ crop.title_en }}"
+              class="w-12 h-12 object-cover rounded-lg border border-[#2c2c2c]"
+            />
+          </td>
+
+          <!-- TITLES -->
+          <td
+            class="px-4 py-3 text-gray-200 font-medium border-r border-[#1f1f1f]"
+          >
+            {{ crop.title_en }}
+            <span class="text-gray-500">/ {{ crop.title_tl }}</span>
+          </td>
+
+          <!-- DESCRIPTIONS -->
+          <td class="px-4 py-3 text-gray-400 border-r border-[#1f1f1f]">
+            {{ crop.description_en }}
+            <br />
+            <span class="text-gray-600">{{ crop.description_tl }}</span>
+          </td>
+
+          <!-- ACTIONS -->
+          <td class="px-4 py-3 text-center relative">
+            <button
+              (click)="toggleMenu(crop.id!)"
+              class="p-2 rounded-full hover:bg-[#222] text-gray-300 transition"
+            >
+              ⋮
+            </button>
+
+            <!-- DROPDOWN MENU -->
+            <div
+              *ngIf="showMenuForId === crop.id"
+              class="absolute right-2 top-12 bg-[#111] border border-[#2b2b2b] rounded-lg shadow-xl w-28 z-20"
+            >
+              <button
+                (click)="openEdit(crop)"
+                class="w-full text-left px-4 py-2 hover:bg-[#2a2a2a] text-yellow-400"
+              >
+                ✏️ Edit
+              </button>
+
+              <button
+                (click)="deleteCrop(crop.id!)"
+                class="w-full text-left px-4 py-2 hover:bg-[#2a2a2a] text-red-400"
+              >
+                🗑️ Delete
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- GRID VIEW -->
+  <div
+    *ngIf="viewMode === 'grid'"
+    class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"
+  >
+    <div
+      *ngFor="let crop of filteredCrops()"
+      class="bg-[#111111] rounded-xl border border-[#1f1f1f] hover:bg-[#161616] transition group relative"
+    >
+      <img
+        class="w-full h-48 object-cover rounded-t-xl"
+        [src]="crop.image_url"
+      />
+
+      <div class="p-4">
+        <h2 class="font-semibold text-gray-100 text-lg truncate">
+          {{ crop.title_en }} / {{ crop.title_tl }}
+        </h2>
+        <p class="text-gray-400 text-sm mt-1 line-clamp-2">
+          {{ crop.description_en }}
+        </p>
+      </div>
+
+      <button
+        (click)="toggleMenu(crop.id!)"
+        class="absolute top-3 right-3 p-2 rounded-full hover:bg-[#222] text-gray-200"
+      >
+        ⋮
+      </button>
+
+      <div
+        *ngIf="showMenuForId === crop.id"
+        class="absolute top-10 right-3 bg-[#111] border border-[#2b2b2b] rounded-lg shadow-md w-28 z-20"
+      >
+        <button
+          (click)="openEdit(crop)"
+          class="w-full text-left px-4 py-2 hover:bg-[#2a2a2a] text-yellow-400"
+        >
+          ✏️ Edit
+        </button>
+
+        <button
+          (click)="deleteCrop(crop.id!)"
+          class="w-full text-left px-4 py-2 hover:bg-[#2a2a2a] text-red-400"
+        >
+          🗑️ Delete
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADD / EDIT MODAL -->
+  <div
+    *ngIf="isEditing"
+    class="fixed inset-0 flex justify-center items-center z-50 p-4 bg-black/50 backdrop-blur-sm"
+  >
+    <div
+      class="bg-[#111111] text-gray-200 rounded-2xl max-w-2xl w-full border border-[#1f1f1f] shadow-2xl relative p-0"
+    >
+      <!-- Close Button -->
+      <button
+        (click)="cancelEdit()"
+        class="absolute top-4 right-4 text-gray-400 hover:text-gray-200 text-3xl font-bold"
+      >
+        ×
+      </button>
+
+      <div class="px-8 pt-8 pb-4 border-b border-[#1f1f1f]">
+        <h2 class="text-2xl font-semibold">
+          {{ editedCrop.id ? "✏️ Edit Crop" : "+ Add Crop" }}
+        </h2>
+        <p class="text-gray-400 text-sm mt-1">Complete the fields below</p>
+      </div>
+
+      <form (ngSubmit)="saveCrop()" class="p-8 space-y-6">
+        <!-- Image Upload -->
+        <div>
+          <label class="block text-gray-300 font-medium mb-2">Crop Image</label>
+          <input
+            type="file"
+            (change)="onImageSelected($event)"
+            accept="image/*"
+            class="block w-full text-sm text-gray-300 border border-[#2c2c2c] rounded-lg bg-[#0f0f0f] focus:ring-2 focus:ring-green-500"
+          />
+
+          <div *ngIf="previewImage" class="mt-3">
+            <img
+              [src]="previewImage"
+              class="w-full h-48 object-cover rounded-lg border border-[#2c2c2c]"
+            />
+          </div>
+        </div>
+
+        <!-- Titles -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-gray-300 font-medium mb-1"
+              >Title (English)</label
+            >
+            <input
+              [(ngModel)]="editedCrop.title_en"
+              name="titleEn"
+              required
+              class="w-full border border-[#2c2c2c] bg-[#0f0f0f] rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 text-gray-200"
+            />
+          </div>
+
+          <div>
+            <label class="block text-gray-300 font-medium mb-1"
+              >Title (Tagalog)</label
+            >
+            <input
+              [(ngModel)]="editedCrop.title_tl"
+              name="titleTl"
+              required
+              class="w-full border border-[#2c2c2c] bg-[#0f0f0f] rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 text-gray-200"
+            />
+          </div>
+        </div>
+
+        <!-- Descriptions -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-gray-300 font-medium mb-1"
+              >Description (English)</label
+            >
+            <textarea
+              [(ngModel)]="editedCrop.description_en"
+              name="descEn"
+              rows="3"
+              class="w-full border border-[#2c2c2c] bg-[#0f0f0f] rounded-lg px-3 py-2 resize-none focus:ring-2 focus:ring-green-500 text-gray-200"
+            ></textarea>
+          </div>
+
+          <div>
+            <label class="block text-gray-300 font-medium mb-1"
+              >Description (Tagalog)</label
+            >
+            <textarea
+              [(ngModel)]="editedCrop.description_tl"
+              name="descTl"
+              rows="3"
+              class="w-full border border-[#2c2c2c] bg-[#0f0f0f] rounded-lg px-3 py-2 resize-none focus:ring-2 focus:ring-green-500 text-gray-200"
+            ></textarea>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="flex justify-end gap-3 pt-4 border-t border-[#1f1f1f]">
+          <button
+            type="button"
+            (click)="cancelEdit()"
+            class="px-4 py-2 rounded-lg border border-[#2c2c2c] hover:bg-[#1a1a1a] transition text-gray-300"
+          >
+            Cancel
+          </button>
+
+          <button
+            type="submit"
+            class="px-5 py-2 rounded-lg bg-green-500 text-black font-medium hover:bg-green-400 transition"
+          >
+            Save
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div
+  *ngIf="toast.show"
+  class="fixed top-5 right-5 z-[9999] min-w-[300px] max-w-[360px] rounded-xl px-5 py-4 border border-[#1e1e1e] bg-[#111111] text-gray-300 shadow-[0_0_15px_rgba(0,0,0,0.4)] flex items-center justify-between transition-all duration-300"
+  [style.opacity]="toast.show ? '1' : '0'"
+  [style.transform]="toast.show ? 'translateY(0)' : 'translateY(-10px)'"
+>
+  <!-- Left: Spinner + Message -->
+  <div class="flex items-center space-x-3">
+    <!-- Spinner -->
+    <svg
+      *ngIf="toast.type === 'loading'"
+      class="animate-spin h-4 w-4 text-gray-400"
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+    >
+      <circle
+        class="opacity-25"
+        cx="12"
+        cy="12"
+        r="10"
+        stroke="currentColor"
+        stroke-width="4"
+      ></circle>
+      <path
+        class="opacity-75"
+        fill="currentColor"
+        d="M4 12a8 8 0 018-8v8H4z"
+      ></path>
+    </svg>
+
+    <!-- Message -->
+    <p class="text-sm font-medium">
+      {{ toast.message }}
+    </p>
+  </div>
+
+  <!-- Close Button -->
+  <button
+    (click)="hideToast()"
+    class="text-gray-500 hover:text-gray-300 text-lg leading-none"
+  >
+    ✕
+  </button>
+</div>

@@ -1,0 +1,266 @@
+<div class="min-h-screen flex bg-[#0d0d0d] text-gray-200 relative">
+  <!-- Overlay for mobile -->
+  <div
+    class="fixed inset-0 bg-black/40 backdrop-blur-sm z-20 lg:hidden"
+    *ngIf="isMenuOpen"
+    (click)="toggleMenu()"
+  ></div>
+
+  <!-- SIDEBAR -->
+  <aside
+    class="fixed inset-y-0 left-0 w-64 bg-[#0f0f0f] border-r border-[#1f1f1f] text-gray-300 flex flex-col justify-between p-6 transition-transform duration-300 z-30 transform lg:translate-x-0"
+    [ngClass]="{
+      '-translate-x-full': !isMenuOpen,
+      'translate-x-0': isMenuOpen
+    }"
+  >
+    <div>
+      <h2
+        class="text-xl font-bold tracking-wide mb-8 flex items-center justify-between"
+      >
+        <span class="text-[#3ae68d]">FarmG</span>
+
+        <button
+          (click)="toggleMenu()"
+          class="text-gray-400 text-2xl font-bold lg:hidden hover:text-white transition"
+        >
+          &times;
+        </button>
+      </h2>
+
+      <div class="flex items-center mb-8">
+        <div>
+          <p class="font-semibold text-gray-200">Admin</p>
+          <p class="text-sm text-gray-500">Farm Manager</p>
+        </div>
+      </div>
+
+      <ul class="space-y-2">
+        <li
+          class="flex items-center p-2 rounded-md cursor-pointer transition hover:bg-[#1a1a1a]"
+          routerLink="overview"
+          routerLinkActive="bg-[#1e1e1e] text-white border border-[#2a2a2a]"
+          [routerLinkActiveOptions]="{ exact: true }"
+        >
+          <i class="pi pi-home mr-3 text-gray-400"></i> Overview
+        </li>
+
+        <li
+          routerLink="crop"
+          routerLinkActive="bg-[#1e1e1e] text-white border border-[#2a2a2a]"
+          class="flex items-center p-2 rounded-md cursor-pointer hover:bg-[#1a1a1a]"
+        >
+          <i class="pi pi-th-large mr-3 text-gray-400"></i> Crops
+        </li>
+
+        <li
+          routerLink="watering-guide"
+          routerLinkActive="bg-[#1e1e1e] text-white border border-[#2a2a2a]"
+          class="flex items-center p-2 rounded-md cursor-pointer hover:bg-[#1a1a1a]"
+        >
+          <i class="pi pi-sun mr-3 text-gray-400"></i> Watering Guide
+        </li>
+
+        <li
+          routerLink="video-tutorial"
+          routerLinkActive="bg-[#1e1e1e] text-white border border-[#2a2a2a]"
+          class="flex items-center p-2 rounded-md cursor-pointer hover:bg-[#1a1a1a]"
+        >
+          <i class="pi pi-video mr-3 text-gray-400"></i> Video Tutorials
+        </li>
+
+        <li
+          routerLink="settings"
+          routerLinkActive="bg-[#1e1e1e] text-white border border-[#2a2a2a]"
+          class="flex items-center p-2 rounded-md cursor-pointer hover:bg-[#1a1a1a]"
+        >
+          <i class="pi pi-cog mr-3 text-gray-400"></i> Settings
+        </li>
+      </ul>
+    </div>
+
+    <div>
+      <div
+        class="bg-[#111111] border border-[#1f1f1f] p-3 rounded-md text-sm mb-4"
+      >
+        <p class="text-gray-400">You can manage multiple crop here</p>
+
+        <button
+          class="mt-3 w-full p-2 bg-[#3ae68d] text-black font-semibold rounded-md hover:bg-[#2fd67d] transition"
+        >
+          + Add Crops
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="flex-1 flex flex-col lg:ml-64">
+    <!-- DESKTOP NAVBAR -->
+    <header
+      class="hidden lg:flex items-center justify-between px-8 py-4 bg-[#0f0f0f]/90 border-b border-[#1f1f1f] fixed top-0 left-64 right-0 z-40"
+    >
+      <h1 class="text-xl font-semibold text-gray-200">Trichoderma Dashboard</h1>
+
+      <div class="flex items-center gap-4">
+        <button class="p-2 rounded-full hover:bg-[#1a1a1a] transition relative">
+          <i class="pi pi-bell text-gray-300 text-lg"></i>
+          <span
+            class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"
+          ></span>
+        </button>
+        <button
+          (click)="toggleProfileMenu()"
+          class="flex items-center gap-2 hover:opacity-80 relative"
+        >
+          <img
+            src="assets/avatar.png"
+            class="w-9 h-9 rounded-full border border-[#2a2a2a]"
+          />
+          <span class="text-gray-300">Admin</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- PROFILE DROPDOWN -->
+    <div
+      *ngIf="profileOpen"
+      (click)="closeProfileMenu()"
+      class="fixed inset-0 z-50"
+    >
+      <div
+        class="absolute top-20 right-8 w-64 bg-[#111111] border border-[#1f1f1f] rounded-xl shadow-xl py-2 text-sm"
+        (click)="$event.stopPropagation()"
+      >
+        <div class="px-4 py-2 font-semibold text-gray-200">
+          alvinhernandez090@gmail.com
+        </div>
+
+        <hr class="border-[#1f1f1f]" />
+        <button
+          class="w-full text-left px-4 py-2 hover:bg-[#1a1a1a]"
+          routerLink="/admin/account-preferences"
+          (click)="closeProfileMenu()"
+        >
+          ⚙️ Account preferences
+        </button>
+
+        <button class="w-full text-left px-4 py-2 hover:bg-[#1a1a1a]">
+          🧪 Feature previews
+        </button>
+
+        <hr class="border-[#1f1f1f]" />
+
+        <button
+          class="w-full text-left px-4 py-2 text-red-400 hover:bg-red-900/20"
+          (click)="onLogout()"
+        >
+          Log out
+        </button>
+      </div>
+    </div>
+
+    <!-- MOBILE NAVBAR -->
+    <header
+      class="lg:hidden flex items-center justify-between bg-[#0f0f0f] border-b border-[#1f1f1f] px-4 py-3 fixed top-0 left-0 right-0 z-40"
+    >
+      <button
+        (click)="toggleMenu()"
+        class="text-gray-300 text-2xl font-bold hover:text-white transition"
+      >
+        &#9776;
+      </button>
+
+      <h1 class="text-lg font-bold text-gray-200">Trichoderma Dashboard</h1>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 p-8 bg-[#0d0d0d] pt-24 lg:pt-24">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>
+
+<!-- SEARCH MODAL -->
+<div
+  *ngIf="searchOpen"
+  class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-start justify-center pt-28"
+  (click)="closeSearchModal()"
+>
+  <div
+    class="bg-[#111111] border border-[#1f1f1f] rounded-xl w-full max-w-2xl p-6 shadow-xl"
+    (click)="$event.stopPropagation()"
+  >
+    <div
+      class="flex items-center bg-[#151515] rounded-lg border border-[#1f1f1f] px-4"
+    >
+      <i class="pi pi-search text-gray-400 mr-3"></i>
+      <input
+        type="text"
+        placeholder="Run a command or search for crops, videos, guides…"
+        class="flex-1 bg-transparent py-3 text-gray-200 outline-none"
+        [(ngModel)]="searchQuery"
+        (input)="handleSearch()"
+      />
+    </div>
+
+    <div class="mt-4 max-h-96 overflow-y-auto text-gray-300 text-sm space-y-6">
+      <!-- CROPS -->
+      <div *ngIf="results.crops.length > 0">
+        <p class="uppercase text-gray-500 text-xs mb-2">Crops</p>
+
+        <div
+          *ngFor="let crop of results.crops"
+          (click)="goToCrop(crop)"
+          class="p-3 rounded-md hover:bg-[#1a1a1a] cursor-pointer"
+        >
+          <p class="font-semibold text-[#3ae68d]">{{ crop.title_en }}</p>
+          <p class="text-gray-400 text-xs">{{ crop.description_en }}</p>
+        </div>
+      </div>
+
+      <!-- VIDEOS -->
+      <div *ngIf="results.videos.length > 0">
+        <p class="uppercase text-gray-500 text-xs mb-2">Video Tutorials</p>
+
+        <div
+          *ngFor="let vid of results.videos"
+          (click)="goToVideo(vid)"
+          class="p-3 rounded-md hover:bg-[#1a1a1a] cursor-pointer flex items-center gap-3"
+        >
+          <video
+            [src]="vid.url"
+            class="w-20 h-14 rounded object-cover bg-black"
+            muted
+          ></video>
+
+          <div>
+            <p class="font-semibold text-[#3ae68d]">{{ vid.title }}</p>
+            <p class="text-gray-400 text-xs">{{ vid.croptype }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- GUIDES -->
+      <div *ngIf="results.guides.length > 0">
+        <p class="uppercase text-gray-500 text-xs mb-2">Watering Guides</p>
+
+        <div
+          *ngFor="let g of results.guides"
+          (click)="goToGuide(g)"
+          class="p-3 rounded-md hover:bg-[#1a1a1a] cursor-pointer"
+        >
+          <p class="font-semibold text-[#3ae68d]">
+            Guide for Crop {{ g.crop_id }}
+          </p>
+          <p class="text-gray-400 text-xs">{{ g.description }}</p>
+        </div>
+      </div>
+
+      <!-- EMPTY -->
+      <div *ngIf="showEmpty">
+        <p class="text-center text-gray-500 py-10">No results found...</p>
+      </div>
+    </div>
+  </div>
+</div>

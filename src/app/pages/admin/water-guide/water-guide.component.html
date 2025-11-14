@@ -1,0 +1,521 @@
+<div class="max-w-6xl mx-auto p-6 bg-[#0d0d0d] min-h-screen text-gray-200">
+  <!-- Header -->
+  <div class="flex flex-wrap justify-between items-center mb-8">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-200">
+        <span>Watering Guides</span>
+      </h1>
+      <p class="text-sm text-gray-400">Manage watering instructions per crop</p>
+    </div>
+
+    <div class="flex items-center space-x-3 mt-4 sm:mt-0">
+      <!-- List View Button -->
+      <button
+        (click)="viewMode = 'list'"
+        [class.bg-[#3ae68d]]="viewMode === 'list'"
+        [class.text-black]="viewMode === 'list'"
+        [class.bg-[#161616]]="viewMode !== 'list'"
+        class="px-3 py-1 rounded border border-[#1f1f1f] hover:bg-[#1a1a1a] transition"
+      >
+        <i class="bx bx-list-ul"></i>
+      </button>
+
+      <!-- Grid View Button -->
+      <button
+        (click)="viewMode = 'grid'"
+        [class.bg-[#3ae68d]]="viewMode === 'grid'"
+        [class.text-black]="viewMode === 'grid'"
+        [class.bg-[#161616]]="viewMode !== 'grid'"
+        class="px-3 py-1 rounded border border-[#1f1f1f] hover:bg-[#1a1a1a] transition"
+      >
+        <i class="bx bx-grid-alt"></i>
+      </button>
+
+      <!-- Add Button -->
+      <button
+        (click)="openAddModal()"
+        class="py-2 px-1 bg-[#0f6b49] border border-[#1ea26f] text-white font-medium rounded-lg hover:bg-[#0c5c3f] transition-colors duration-200"
+      >
+        + Add Guide
+      </button>
+    </div>
+  </div>
+
+  <!-- Search -->
+  <div class="mb-4">
+    <input
+      type="text"
+      placeholder="Search guides..."
+      [(ngModel)]="searchText"
+      class="w-full sm:w-64 border border-[#1f1f1f] rounded px-3 py-2 bg-[#111111] text-gray-200 focus:ring-2 focus:ring-[#3ae68d]"
+    />
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="flex justify-center items-center h-64">
+    <svg
+      class="animate-spin h-10 w-10 text-[#3ae68d]"
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+    >
+      <circle
+        class="opacity-25"
+        cx="12"
+        cy="12"
+        r="10"
+        stroke="currentColor"
+        stroke-width="4"
+      ></circle>
+      <path
+        class="opacity-75"
+        fill="currentColor"
+        d="M4 12a8 8 0 018-8v8H4z"
+      ></path>
+    </svg>
+  </div>
+
+  <!-- No Data -->
+  <div
+    *ngIf="!loading && guides.length === 0"
+    class="text-center py-16 text-gray-500"
+  >
+    🌱 No watering guides found.
+  </div>
+
+  <!-- LIST VIEW (TABLE FORMAT) -->
+  <div
+    *ngIf="!loading && guides.length > 0 && viewMode === 'list'"
+    class="mt-4"
+  >
+    <table
+      class="w-full border border-[#1f1f1f] rounded-xl overflow-hidden text-sm"
+    >
+      <thead class="bg-[#111111] border-b border-[#1f1f1f]">
+        <tr>
+          <th
+            class="px-4 py-3 text-gray-300 font-semibold border-r border-[#1f1f1f]"
+          >
+            Image
+          </th>
+          <th
+            class="px-4 py-3 text-gray-300 font-semibold border-r border-[#1f1f1f]"
+          >
+            Crop Name
+          </th>
+          <th
+            class="px-4 py-3 text-gray-300 font-semibold border-r border-[#1f1f1f]"
+          >
+            Description
+          </th>
+          <th
+            class="px-4 py-3 text-gray-300 font-semibold border-r border-[#1f1f1f]"
+          >
+            Tasks (EN / TL)
+          </th>
+          <th class="px-4 py-3 text-gray-300 font-semibold w-20">Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr
+          *ngFor="let guide of filteredGuides()"
+          class="hover:bg-[#151515] transition border-b border-[#1f1f1f]"
+        >
+          <!-- IMAGE -->
+          <td class="px-4 py-3 border-r border-[#1f1f1f]">
+            <img
+              [src]="guide.cropImage"
+              alt="{{ guide.cropName }}"
+              class="w-12 h-12 object-cover rounded-lg border border-[#2c2c2c]"
+            />
+          </td>
+
+          <!-- CROP NAME -->
+          <td
+            class="px-4 py-3 text-gray-200 font-medium border-r border-[#1f1f1f]"
+          >
+            {{ guide.cropName }}
+          </td>
+
+          <!-- DESCRIPTION -->
+          <td class="px-4 py-3 text-gray-400 border-r border-[#1f1f1f]">
+            {{ guide.description }}
+          </td>
+
+          <!-- TASKS -->
+          <td class="px-4 py-3 text-gray-300 border-r border-[#1f1f1f]">
+            <div *ngIf="guide.tasks.length; else noTasks">
+              <div *ngFor="let task of guide.tasks" class="mb-2">
+                <span class="text-[#3ae68d] font-semibold">EN:</span>
+                <span class="text-gray-300">{{ task.en }}</span>
+                <br />
+                <span class="text-[#3ae68d] font-semibold">TL:</span>
+                <span class="text-gray-400">{{ task.tl }}</span>
+              </div>
+            </div>
+
+            <ng-template #noTasks>
+              <span class="text-gray-600 italic">No tasks available</span>
+            </ng-template>
+          </td>
+
+          <!-- ACTIONS -->
+          <td class="px-4 py-3 text-center relative">
+            <button
+              (click)="
+                selectedGuideId = selectedGuideId === guide.id ? null : guide.id
+              "
+              class="p-2 rounded-full hover:bg-[#222] text-gray-300 transition"
+            >
+              ⋮
+            </button>
+
+            <!-- DROPDOWN -->
+            <div
+              *ngIf="selectedGuideId === guide.id"
+              class="absolute right-2 top-12 bg-[#111] border border-[#2b2b2b] rounded-lg shadow-xl w-28 z-20"
+            >
+              <button
+                (click)="openEditModal(guide)"
+                class="w-full text-left px-4 py-2 hover:bg-[#2a2a2a] text-[#3ae68d]"
+              >
+                Edit
+              </button>
+
+              <button
+                (click)="deleteGuide(guide)"
+                class="w-full text-left px-4 py-2 hover:bg-red-900/40 text-red-400"
+              >
+                Delete
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- GRID VIEW -->
+  <div
+    *ngIf="!loading && guides.length > 0 && viewMode === 'grid'"
+    class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"
+  >
+    <div
+      *ngFor="let guide of filteredGuides()"
+      class="bg-[#111111] rounded-xl p-4 border border-[#1f1f1f] hover:bg-[#161616] transition relative"
+    >
+      <img
+        [src]="guide.cropImage"
+        class="w-full h-40 object-cover rounded mb-4"
+      />
+
+      <h2 class="font-semibold text-lg text-[#3ae68d] truncate">
+        {{ guide.cropName }}
+      </h2>
+      <p class="text-sm text-gray-400">{{ guide.description }}</p>
+
+      <ul
+        *ngIf="guide.tasks.length"
+        class="mt-2 list-disc list-inside text-sm text-gray-300"
+      >
+        <li *ngFor="let task of guide.tasks">
+          <span class="text-[#3ae68d] font-semibold">EN:</span> {{ task.en
+          }}<br />
+          <span class="text-[#3ae68d] font-semibold">TL:</span> {{ task.tl }}
+        </li>
+      </ul>
+
+      <!-- Options -->
+      <div class="absolute top-3 right-3">
+        <button
+          (click)="
+            selectedGuideId = selectedGuideId === guide.id ? null : guide.id
+          "
+          class="p-2 rounded-full hover:bg-[#1a1a1a] transition text-gray-300"
+        >
+          ⋮
+        </button>
+
+        <div
+          *ngIf="selectedGuideId === guide.id"
+          class="absolute right-0 top-10 bg-[#161616] border border-[#1f1f1f] rounded-lg shadow-lg w-28 z-20"
+        >
+          <button
+            (click)="openEditModal(guide)"
+            class="w-full text-left px-4 py-2 hover:bg-[#1a1a1a] text-[#3ae68d]"
+          >
+            Edit
+          </button>
+          <button
+            (click)="deleteGuide(guide)"
+            class="w-full text-left px-4 py-2 hover:bg-red-900/40 text-red-400"
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADD MODAL -->
+  <div
+    *ngIf="showAddModal"
+    class="fixed inset-0 flex justify-center items-center z-50 p-4 bg-black/40 backdrop-blur-sm"
+  >
+    <div
+      class="bg-[#111111] rounded-xl max-w-lg w-full p-6 border border-[#1f1f1f] relative shadow-xl"
+    >
+      <button
+        (click)="closeAddModal()"
+        class="absolute top-4 right-4 text-gray-400 hover:text-gray-200 text-3xl"
+      >
+        &times;
+      </button>
+
+      <h2 class="text-2xl font-semibold text-[#3ae68d]">
+        Add Crop Watering Guide
+      </h2>
+      <p class="text-sm text-gray-400 mt-1">Manage watering tasks</p>
+
+      <form class="space-y-4">
+        <!-- Crop -->
+        <div>
+          <label class="block text-sm mb-1 text-gray-300">Select Crop</label>
+          <select
+            [(ngModel)]="newGuide.cropId"
+            name="cropId"
+            class="w-full border border-[#1f1f1f] rounded px-3 py-2 bg-[#0f0f0f] text-gray-200"
+          >
+            <option *ngFor="let crop of crops" [value]="crop.id">
+              {{ crop.title_en }} / {{ crop.title_tl }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Description -->
+        <div>
+          <label class="block text-sm mb-1 text-gray-300">Description</label>
+          <textarea
+            [(ngModel)]="newGuide.description"
+            name="description"
+            rows="2"
+            class="w-full border border-[#1f1f1f] rounded px-3 py-2 bg-[#0f0f0f] text-gray-200"
+          ></textarea>
+        </div>
+
+        <!-- Tasks -->
+        <div class="pt-2">
+          <div class="space-y-2 mb-3">
+            <input
+              [(ngModel)]="newTaskEn"
+              placeholder="Task in English"
+              class="border border-[#1f1f1f] bg-[#0f0f0f] rounded px-3 py-2 text-gray-200"
+            />
+            <input
+              [(ngModel)]="newTaskTl"
+              placeholder="Task in Tagalog"
+              class="border border-[#1f1f1f] bg-[#0f0f0f] rounded px-3 py-2 text-gray-200"
+            />
+            <button
+              type="button"
+              (click)="addTaskToNewGuide()"
+              class="bg-[#3ae68d] text-black px-3 py-2 rounded hover:bg-[#2fd67d]"
+            >
+              + Add Task
+            </button>
+          </div>
+
+          <ul class="list-disc list-inside text-sm text-gray-300">
+            <li *ngFor="let task of newGuide.tasks; let i = index">
+              <span class="text-[#3ae68d]">EN:</span> {{ task.en }}<br />
+              <span class="text-[#3ae68d]">TL:</span> {{ task.tl }}
+              <button
+                (click)="removeTaskFromNewGuide(i)"
+                class="text-red-400 hover:underline ml-2"
+              >
+                remove
+              </button>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Buttons -->
+        <div class="flex justify-end space-x-3 pt-3 border-t border-[#1f1f1f]">
+          <button
+            (click)="closeAddModal()"
+            class="px-4 py-2 rounded border border-[#1f1f1f] hover:bg-[#161616]"
+          >
+            Cancel
+          </button>
+
+          <button
+            (click)="saveNewGuide()"
+            [disabled]="addingGuide"
+            class="bg-[#3ae68d] text-black px-4 py-2 rounded hover:bg-[#2fd67d] flex items-center gap-2"
+          >
+            <span *ngIf="!addingGuide">Save</span>
+
+            <svg
+              *ngIf="addingGuide"
+              class="animate-spin h-5 w-5 text-black"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <circle
+                class="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                stroke-width="4"
+              ></circle>
+              <path class="opacity-75" d="M4 12a8 8 0 018-8v8H4z"></path>
+            </svg>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- EDIT MODAL -->
+  <div
+    *ngIf="showEditModal && selectedGuideToEdit"
+    class="fixed inset-0 flex justify-center items-center z-50 p-4 bg-black/40 backdrop-blur-sm"
+  >
+    <div
+      class="bg-[#111111] rounded-xl max-w-lg w-full p-6 border border-[#1f1f1f] relative shadow-xl"
+    >
+      <button
+        (click)="closeEditModal()"
+        class="absolute top-4 right-4 text-gray-400 hover:text-gray-200 text-3xl"
+      >
+        &times;
+      </button>
+
+      <h2 class="text-2xl font-semibold text-[#3ae68d]">
+        Edit Crop Watering Guide
+      </h2>
+      <p class="text-sm text-gray-400 mt-1">Update watering tasks</p>
+
+      <form class="space-y-4">
+        <!-- Crop -->
+        <div>
+          <label class="block text-sm text-gray-300">Select Crop</label>
+          <select
+            [(ngModel)]="selectedGuideToEdit.crop_id"
+            name="editCropId"
+            class="w-full border border-[#1f1f1f] rounded px-3 py-2 bg-[#0f0f0f] text-gray-200"
+          >
+            <option *ngFor="let crop of crops" [value]="crop.id">
+              {{ crop.title_en }} / {{ crop.title_tl }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Description -->
+        <div>
+          <label class="block text-sm text-gray-300">Description</label>
+          <textarea
+            [(ngModel)]="selectedGuideToEdit.description"
+            rows="2"
+            class="w-full border border-[#1f1f1f] rounded px-3 py-2 bg-[#0f0f0f] text-gray-200"
+          ></textarea>
+        </div>
+
+        <!-- Tasks -->
+        <div class="pt-2">
+          <div class="space-y-2 mb-3">
+            <input
+              [(ngModel)]="editTaskEn"
+              placeholder="Task in English"
+              class="border border-[#1f1f1f] bg-[#0f0f0f] rounded px-3 py-2 text-gray-200"
+            />
+            <input
+              [(ngModel)]="editTaskTl"
+              placeholder="Task in Tagalog"
+              class="border border-[#1f1f1f] bg-[#0f0f0f] rounded px-3 py-2 text-gray-200"
+            />
+
+            <button
+              type="button"
+              (click)="addTaskToEditGuide()"
+              class="bg-[#3ae68d] text-black px-3 py-2 rounded hover:bg-[#2fd67d]"
+            >
+              + Add Task
+            </button>
+          </div>
+
+          <ul class="list-disc list-inside text-sm text-gray-300">
+            <li *ngFor="let task of selectedGuideToEdit.tasks; let i = index">
+              <span class="text-[#3ae68d]">EN:</span> {{ task.en }}<br />
+              <span class="text-[#3ae68d]">TL:</span> {{ task.tl }}
+              <button
+                (click)="removeTaskFromEditGuide(i)"
+                class="text-red-400 hover:underline ml-2"
+              >
+                remove
+              </button>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Buttons -->
+        <div class="flex justify-end space-x-3 pt-3 border-t border-[#1f1f1f]">
+          <button
+            (click)="closeEditModal()"
+            class="px-4 py-2 rounded border border-[#1f1f1f] hover:bg-[#161616]"
+          >
+            Cancel
+          </button>
+
+          <button
+            (click)="saveEditedGuide()"
+            class="bg-[#3ae68d] text-black px-4 py-2 rounded hover:bg-[#2fd67d]"
+          >
+            Save
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div
+  *ngIf="toast.show"
+  class="fixed top-5 right-5 z-[9999] min-w-[300px] max-w-[360px] rounded-xl px-5 py-4 border border-[#1e1e1e] bg-[#111111] text-gray-300 shadow-[0_0_15px_rgba(0,0,0,0.4)] flex items-center justify-between transition-all duration-300"
+  [style.opacity]="toast.show ? '1' : '0'"
+  [style.transform]="toast.show ? 'translateY(0)' : 'translateY(-10px)'"
+>
+  <div class="flex items-center space-x-3">
+    <svg
+      *ngIf="toast.type === 'loading'"
+      class="animate-spin h-4 w-4 text-gray-400"
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+    >
+      <circle
+        class="opacity-25"
+        cx="12"
+        cy="12"
+        r="10"
+        stroke="currentColor"
+        stroke-width="4"
+      ></circle>
+      <path
+        class="opacity-75"
+        fill="currentColor"
+        d="M4 12a8 8 0 018-8v8H4z"
+      ></path>
+    </svg>
+
+    <p class="text-sm font-medium">{{ toast.message }}</p>
+  </div>
+
+  <button
+    (click)="hideToast()"
+    class="text-gray-500 hover:text-gray-300 text-lg leading-none"
+  >
+    ✕
+  </button>
+</div>
