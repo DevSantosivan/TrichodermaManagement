@@ -101,12 +101,16 @@
 
       <div class="flex items-center space-x-2">
         <!-- LIST VIEW BUTTON -->
+        <!-- LIST VIEW BUTTON -->
         <button
           (click)="toggleGridView(false)"
-          [ngClass]="
-            !isGridView ? 'bg-[#3ae68d] text-black' : 'bg-[#161616] text-white'
-          "
-          class="px-3 py-1 rounded border border-[#1f1f1f]"
+          [ngClass]="{
+            'bg-[#0f6b49] border-[#1ea26f] text-white hover:bg-[#0c5c3f]':
+              !isGridView,
+            'bg-[#161616] border-[#1f1f1f] text-gray-300 hover:bg-[#1a1a1a]':
+              isGridView
+          }"
+          class="px-4 py-2 rounded-lg border transition-colors flex items-center justify-center"
         >
           <i class="bx bx-list-ul text-xl"></i>
         </button>
@@ -114,10 +118,13 @@
         <!-- GRID VIEW BUTTON -->
         <button
           (click)="toggleGridView(true)"
-          [ngClass]="
-            isGridView ? 'bg-[#3ae68d] text-black' : 'bg-[#161616] text-white'
-          "
-          class="px-3 py-1 rounded border border-[#1f1f1f]"
+          [ngClass]="{
+            'bg-[#0f6b49] border-[#1ea26f] text-white hover:bg-[#0c5c3f]':
+              isGridView,
+            'bg-[#161616] border-[#1f1f1f] text-gray-300 hover:bg-[#1a1a1a]':
+              !isGridView
+          }"
+          class="px-4 py-2 rounded-lg border transition-colors flex items-center justify-center"
         >
           <i class="bx bx-grid-alt text-xl"></i>
         </button>
@@ -127,7 +134,7 @@
     <!-- Table View -->
     <table
       *ngIf="!isGridView"
-      class="w-full border border-[#1f1f1f] rounded-lg overflow-hidden text-sm"
+      class="w-full border border-[#1f1f1f] rounded-lg text-sm"
     >
       <thead class="bg-[#111] border-b border-[#1f1f1f]">
         <tr>

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Crop } from '../../../model/crop.model';
 import { CropService } from '../../../service/crop.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-crops',
@@ -30,7 +31,7 @@ export class CropsComponent implements OnInit {
     type: 'success' as 'success' | 'error' | 'loading',
   };
 
-  constructor(private cropService: CropService) {}
+  constructor(private cropService: CropService, private route: Router) {}
 
   async ngOnInit() {
     await this.loadCrops();
@@ -76,17 +77,10 @@ export class CropsComponent implements OnInit {
   }
 
   openAddForm() {
-    this.isEditing = true;
-    this.editedCrop = this.emptyCrop();
-    this.previewImage = null;
-    this.selectedFile = null;
+    this.route.navigate(['admin/crop/add']);
   }
-
-  openEdit(crop: Crop) {
-    this.isEditing = true;
-    this.editedCrop = { ...crop };
-    this.previewImage = crop.image_url;
-    this.selectedFile = null;
+  openEdit(crop: any) {
+    this.route.navigate(['/admin/crop/edit', crop.id]);
   }
 
   cancelEdit() {
@@ -157,6 +151,19 @@ export class CropsComponent implements OnInit {
       title_tl: '',
       description_en: '',
       description_tl: '',
+
+      land_preparation_en: '',
+      land_preparation_tl: '',
+      seed_preparation_en: '',
+      seed_preparation_tl: '',
+      nursery_en: '',
+      nursery_tl: '',
+      transplanting_en: '',
+      transplanting_tl: '',
+      water_mgmt_en: '',
+      water_mgmt_tl: '',
+      harvest_en: '',
+      harvest_tl: '',
     };
   }
 }

@@ -19,32 +19,31 @@
       <!-- View Toggle -->
       <button
         (click)="viewMode = 'list'"
-        [class.bg-[#3ae68d]]="viewMode === 'list'"
-        [class.text-black]="viewMode === 'list'"
-        [class.bg-[#161616]]="viewMode !== 'list'"
-        class="px-3 py-1 rounded border border-[#1ea26f] hover:bg-[#0f6b49] transition"
-        title="List"
+        [ngClass]="{
+          'bg-[#0f6b49] border-[#1ea26f] text-white hover:bg-[#0c5c3f]':
+            viewMode === 'list',
+          'bg-[#161616] border-[#1f1f1f] text-gray-300 hover:bg-[#1a1a1a]':
+            viewMode !== 'list'
+        }"
+        class="px-4 py-2 rounded-lg border transition-colors flex items-center justify-center"
       >
-        <i class="bx bx-list-ul"></i>
-      </button>
-      <button
-        (click)="viewMode = 'grid'"
-        [class.bg-[#3ae68d]]="viewMode === 'grid'"
-        [class.text-black]="viewMode === 'grid'"
-        [class.bg-[#161616]]="viewMode !== 'grid'"
-        class="px-3 py-1 rounded border border-[#1ea26f] hover:bg-[#0f6b49] transition"
-        title="Grid"
-      >
-        <i class="bx bx-grid-alt"></i>
+        <i class="bx bx-list-ul text-xl"></i>
       </button>
 
+      <!-- GRID BUTTON -->
+      <button
+        (click)="viewMode = 'grid'"
+        [ngClass]="{
+          'bg-[#0f6b49] border-[#1ea26f] text-white hover:bg-[#0c5c3f]':
+            viewMode === 'grid',
+          'bg-[#161616] border-[#1f1f1f] text-gray-300 hover:bg-[#1a1a1a]':
+            viewMode !== 'grid'
+        }"
+        class="px-4 py-2 rounded-lg border transition-colors flex items-center justify-center"
+      >
+        <i class="bx bx-grid-alt text-xl"></i>
+      </button>
       <!-- Search -->
-      <input
-        type="search"
-        [(ngModel)]="searchText"
-        placeholder="Search videos..."
-        class="border border-[#1f1f1f] rounded px-3 py-2 bg-[#111111] text-gray-200 focus:outline-none focus:ring-2 focus:ring-[#3ae68d] w-full sm:w-64"
-      />
 
       <!-- Add Video -->
       <button
@@ -55,7 +54,14 @@
       </button>
     </div>
   </div>
-
+  <div class="mb-4">
+    <input
+      type="search"
+      [(ngModel)]="searchText"
+      placeholder="Search crops..."
+      class="w-full sm:w-64 border border-[#1f1f1f] rounded px-3 py-2 bg-[#111111] text-gray-200 focus:ring-2 focus:ring-[#3ae68d]"
+    />
+  </div>
   <!-- Loading -->
   <div *ngIf="loading" class="flex justify-center items-center h-64">
     <svg
@@ -94,9 +100,7 @@
     *ngIf="!loading && videos.length > 0 && viewMode === 'list'"
     class="mt-4"
   >
-    <table
-      class="w-full border border-[#1f1f1f] rounded-xl overflow-hidden text-sm"
-    >
+    <table class="w-full border border-[#1f1f1f] rounded-xl text-sm">
       <thead class="bg-[#111111] border-b border-[#1f1f1f]">
         <tr>
           <th
@@ -371,7 +375,7 @@
 
         <button
           type="submit"
-          class="w-full bg-[#3ae68d] text-black px-4 py-2 rounded hover:bg-[#2fd67d] transition"
+          class="w-full px-2 py-2 bg-[#0f6b49] border border-[#1ea26f] rounded-lg text-white hover:bg-[#0c5c3f] transition-colors"
         >
           {{ editedVideo.id ? "Update Video" : "Add Video" }}
         </button>

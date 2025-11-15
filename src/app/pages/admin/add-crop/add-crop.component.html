@@ -1,0 +1,531 @@
+<!-- add-crop.component.html -->
+<div class="min-h-screen bg-[#0d0d0d] text-white p-6">
+  <div class="max-w-5xl mx-auto space-y-10">
+    <!-- HEADER -->
+    <!-- HEADER WITH BACK BUTTON -->
+    <div class="flex items-center gap-3 mb-6">
+      <button
+        class="p-2 rounded-lg bold hover:bg-[#222] transition"
+        (click)="goBack()"
+      >
+        ←
+      </button>
+      <h1 class="text-3xl font-bold">
+        🌾 {{ isEditMode ? "Edit Crop" : "Add New Crop" }}
+      </h1>
+    </div>
+
+    <form #cropForm="ngForm" (ngSubmit)="saveCrop(cropForm)" novalidate>
+      <!-- ====================== CROP BASIC DETAILS ====================== -->
+      <div class="bg-[#1a1a1a] border border-[#333] rounded-xl p-6">
+        <div class="flex items-center space-x-2 mb-4">
+          <span class="text-xl">📌</span>
+          <h2 class="text-xl font-semibold">Crop Details</h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Title EN -->
+          <div>
+            <label class="text-sm font-medium text-gray-300"
+              >Title (English) <span class="text-red-500">*</span></label
+            >
+            <input
+              type="text"
+              name="title_en"
+              [(ngModel)]="newCrop.title_en"
+              #titleEn="ngModel"
+              required
+              class="w-full mt-1 px-3 py-2 rounded-md bg-[#1a1a1a] border text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#3ecf8e] border-[#333] invalid:border-red-500"
+              [class.border-red-500]="titleEn.invalid && titleEn.touched"
+            />
+            <div
+              *ngIf="titleEn.invalid && titleEn.touched"
+              class="text-xs text-red-400 mt-1"
+            >
+              Title (English) is required.
+            </div>
+          </div>
+
+          <!-- Title TL -->
+          <div>
+            <label class="text-sm font-medium text-gray-300"
+              >Title (Tagalog) <span class="text-red-500">*</span></label
+            >
+            <input
+              type="text"
+              name="title_tl"
+              [(ngModel)]="newCrop.title_tl"
+              #titleTl="ngModel"
+              required
+              class="w-full mt-1 px-3 py-2 rounded-md bg-[#1a1a1a] border text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#3ecf8e] border-[#333]"
+              [class.border-red-500]="titleTl.invalid && titleTl.touched"
+            />
+            <div
+              *ngIf="titleTl.invalid && titleTl.touched"
+              class="text-xs text-red-400 mt-1"
+            >
+              Title (Tagalog) is required.
+            </div>
+          </div>
+        </div>
+
+        <!-- Image URL -->
+        <!-- IMAGE UPLOAD -->
+        <div class="mt-6">
+          <label class="text-sm font-medium text-gray-300">
+            Upload Image <span class="text-red-500">*</span>
+          </label>
+
+          <input
+            type="file"
+            accept="image/*"
+            (change)="onImageSelected($event)"
+            #imageInput="ngModel"
+            ngModel
+            name="image_file"
+            [required]="!isEditMode"
+            class="w-full mt-1 px-3 py-2 rounded-md bg-[#1a1a1a] border text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#3ecf8e] border-[#333]"
+            [class.border-red-500]="imageInput.invalid && imageInput.touched"
+          />
+
+          <!-- Error -->
+          <div
+            class="text-red-500 text-sm mt-1"
+            *ngIf="
+              !isEditMode &&
+              cropForm.controls['image']?.touched &&
+              !selectedFile
+            "
+          >
+            Image is required.
+          </div>
+
+          <!-- Preview -->
+          <div *ngIf="previewImage" class="mt-4">
+            <img
+              [src]="previewImage"
+              alt="Preview"
+              class="w-40 h-40 object-cover rounded border border-[#333]"
+            />
+          </div>
+        </div>
+      </div>
+      <br />
+      <!-- ====================== DESCRIPTION ====================== -->
+      <div class="bg-[#1a1a1a] border border-[#333] rounded-xl p-6">
+        <div class="flex items-center space-x-2 mb-4">
+          <span class="text-xl">📝</span>
+          <h2 class="text-xl font-semibold">Description</h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Description EN -->
+          <div>
+            <label class="text-sm font-medium text-gray-300"
+              >Description (English) <span class="text-red-500">*</span></label
+            >
+            <textarea
+              rows="4"
+              name="description_en"
+              [(ngModel)]="newCrop.description_en"
+              #descEn="ngModel"
+              required
+              class="w-full mt-1 px-3 py-2 rounded-md bg-[#1a1a1a] border text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#3ecf8e] border-[#333]"
+              [class.border-red-500]="descEn.invalid && descEn.touched"
+            ></textarea>
+            <div
+              *ngIf="descEn.invalid && descEn.touched"
+              class="text-xs text-red-400 mt-1"
+            >
+              Description (English) is required.
+            </div>
+          </div>
+
+          <!-- Description TL -->
+          <div>
+            <label class="text-sm font-medium text-gray-300"
+              >Description (Tagalog) <span class="text-red-500">*</span></label
+            >
+            <textarea
+              rows="4"
+              name="description_tl"
+              [(ngModel)]="newCrop.description_tl"
+              #descTl="ngModel"
+              required
+              class="w-full mt-1 px-3 py-2 rounded-md bg-[#1a1a1a] border text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#3ecf8e] border-[#333]"
+              [class.border-red-500]="descTl.invalid && descTl.touched"
+            ></textarea>
+            <div
+              *ngIf="descTl.invalid && descTl.touched"
+              class="text-xs text-red-400 mt-1"
+            >
+              Description (Tagalog) is required.
+            </div>
+          </div>
+        </div>
+      </div>
+      <br />
+      <!-- ====================== PROCEDURES ====================== -->
+      <div class="bg-[#1a1a1a] border border-[#333] rounded-xl p-6">
+        <div class="flex items-center space-x-2 mb-4">
+          <span class="text-xl">🌱</span>
+          <h2 class="text-xl font-semibold">Crop Procedures</h2>
+        </div>
+
+        <div class="space-y-6">
+          <!-- Land Preparation -->
+          <div class="border border-[#333] bg-[#141414] rounded-lg p-5">
+            <h3 class="text-lg font-semibold mb-4 text-gray-200">
+              Land Preparation
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label class="text-sm font-medium text-gray-300"
+                  >English <span class="text-red-500">*</span></label
+                >
+                <textarea
+                  rows="4"
+                  name="land_preparation_en"
+                  [(ngModel)]="newCrop.land_preparation_en"
+                  #lpEn="ngModel"
+                  required
+                  class="w-full mt-1 px-3 py-2 rounded-md bg-[#1a1a1a] border text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#3ecf8e] border-[#333]"
+                  [class.border-red-500]="lpEn.invalid && lpEn.touched"
+                ></textarea>
+                <div
+                  *ngIf="lpEn.invalid && lpEn.touched"
+                  class="text-xs text-red-400 mt-1"
+                >
+                  Land Preparation (English) is required.
+                </div>
+              </div>
+
+              <div>
+                <label class="text-sm font-medium text-gray-300"
+                  >Tagalog <span class="text-red-500">*</span></label
+                >
+                <textarea
+                  rows="4"
+                  name="land_preparation_tl"
+                  [(ngModel)]="newCrop.land_preparation_tl"
+                  #lpTl="ngModel"
+                  required
+                  class="w-full mt-1 px-3 py-2 rounded-md bg-[#1a1a1a] border text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#3ecf8e] border-[#333]"
+                  [class.border-red-500]="lpTl.invalid && lpTl.touched"
+                ></textarea>
+                <div
+                  *ngIf="lpTl.invalid && lpTl.touched"
+                  class="text-xs text-red-400 mt-1"
+                >
+                  Land Preparation (Tagalog) is required.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Seed Preparation -->
+          <div class="border border-[#333] bg-[#141414] rounded-lg p-5">
+            <h3 class="text-lg font-semibold mb-4 text-gray-200">
+              Seed Preparation
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label class="text-sm font-medium text-gray-300"
+                  >English <span class="text-red-500">*</span></label
+                >
+                <textarea
+                  rows="4"
+                  name="seed_preparation_en"
+                  [(ngModel)]="newCrop.seed_preparation_en"
+                  #spEn="ngModel"
+                  required
+                  class="w-full mt-1 px-3 py-2 rounded-md bg-[#1a1a1a] border text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#3ecf8e] border-[#333]"
+                  [class.border-red-500]="spEn.invalid && spEn.touched"
+                ></textarea>
+                <div
+                  *ngIf="spEn.invalid && spEn.touched"
+                  class="text-xs text-red-400 mt-1"
+                >
+                  Seed Preparation (English) is required.
+                </div>
+              </div>
+
+              <div>
+                <label class="text-sm font-medium text-gray-300"
+                  >Tagalog <span class="text-red-500">*</span></label
+                >
+                <textarea
+                  rows="4"
+                  name="seed_preparation_tl"
+                  [(ngModel)]="newCrop.seed_preparation_tl"
+                  #spTl="ngModel"
+                  required
+                  class="w-full mt-1 px-3 py-2 rounded-md bg-[#1a1a1a] border text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#3ecf8e] border-[#333]"
+                  [class.border-red-500]="spTl.invalid && spTl.touched"
+                ></textarea>
+                <div
+                  *ngIf="spTl.invalid && spTl.touched"
+                  class="text-xs text-red-400 mt-1"
+                >
+                  Seed Preparation (Tagalog) is required.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Nursery -->
+          <div class="border border-[#333] bg-[#141414] rounded-lg p-5">
+            <h3 class="text-lg font-semibold mb-4 text-gray-200">Nursery</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label class="text-sm font-medium text-gray-300"
+                  >English <span class="text-red-500">*</span></label
+                >
+                <textarea
+                  rows="4"
+                  name="nursery_en"
+                  [(ngModel)]="newCrop.nursery_en"
+                  #nurEn="ngModel"
+                  required
+                  class="w-full mt-1 px-3 py-2 rounded-md bg-[#1a1a1a] border text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#3ecf8e] border-[#333]"
+                  [class.border-red-500]="nurEn.invalid && nurEn.touched"
+                ></textarea>
+                <div
+                  *ngIf="nurEn.invalid && nurEn.touched"
+                  class="text-xs text-red-400 mt-1"
+                >
+                  Nursery (English) is required.
+                </div>
+              </div>
+
+              <div>
+                <label class="text-sm font-medium text-gray-300"
+                  >Tagalog <span class="text-red-500">*</span></label
+                >
+                <textarea
+                  rows="4"
+                  name="nursery_tl"
+                  [(ngModel)]="newCrop.nursery_tl"
+                  #nurTl="ngModel"
+                  required
+                  class="w-full mt-1 px-3 py-2 rounded-md bg-[#1a1a1a] border text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#3ecf8e] border-[#333]"
+                  [class.border-red-500]="nurTl.invalid && nurTl.touched"
+                ></textarea>
+                <div
+                  *ngIf="nurTl.invalid && nurTl.touched"
+                  class="text-xs text-red-400 mt-1"
+                >
+                  Nursery (Tagalog) is required.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Transplanting -->
+          <div class="border border-[#333] bg-[#141414] rounded-lg p-5">
+            <h3 class="text-lg font-semibold mb-4 text-gray-200">
+              Transplanting
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label class="text-sm font-medium text-gray-300"
+                  >English <span class="text-red-500">*</span></label
+                >
+                <textarea
+                  rows="4"
+                  name="transplanting_en"
+                  [(ngModel)]="newCrop.transplanting_en"
+                  #transEn="ngModel"
+                  required
+                  class="w-full mt-1 px-3 py-2 rounded-md bg-[#1a1a1a] border text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#3ecf8e] border-[#333]"
+                  [class.border-red-500]="transEn.invalid && transEn.touched"
+                ></textarea>
+                <div
+                  *ngIf="transEn.invalid && transEn.touched"
+                  class="text-xs text-red-400 mt-1"
+                >
+                  Transplanting (English) is required.
+                </div>
+              </div>
+
+              <div>
+                <label class="text-sm font-medium text-gray-300"
+                  >Tagalog <span class="text-red-500">*</span></label
+                >
+                <textarea
+                  rows="4"
+                  name="transplanting_tl"
+                  [(ngModel)]="newCrop.transplanting_tl"
+                  #transTl="ngModel"
+                  required
+                  class="w-full mt-1 px-3 py-2 rounded-md bg-[#1a1a1a] border text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#3ecf8e] border-[#333]"
+                  [class.border-red-500]="transTl.invalid && transTl.touched"
+                ></textarea>
+                <div
+                  *ngIf="transTl.invalid && transTl.touched"
+                  class="text-xs text-red-400 mt-1"
+                >
+                  Transplanting (Tagalog) is required.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Water Management -->
+          <div class="border border-[#333] bg-[#141414] rounded-lg p-5">
+            <h3 class="text-lg font-semibold mb-4 text-gray-200">
+              Water Management
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label class="text-sm font-medium text-gray-300"
+                  >English <span class="text-red-500">*</span></label
+                >
+                <textarea
+                  rows="4"
+                  name="water_mgmt_en"
+                  [(ngModel)]="newCrop.water_mgmt_en"
+                  #wmEn="ngModel"
+                  required
+                  class="w-full mt-1 px-3 py-2 rounded-md bg-[#1a1a1a] border text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#3ecf8e] border-[#333]"
+                  [class.border-red-500]="wmEn.invalid && wmEn.touched"
+                ></textarea>
+                <div
+                  *ngIf="wmEn.invalid && wmEn.touched"
+                  class="text-xs text-red-400 mt-1"
+                >
+                  Water Management (English) is required.
+                </div>
+              </div>
+
+              <div>
+                <label class="text-sm font-medium text-gray-300"
+                  >Tagalog <span class="text-red-500">*</span></label
+                >
+                <textarea
+                  rows="4"
+                  name="water_mgmt_tl"
+                  [(ngModel)]="newCrop.water_mgmt_tl"
+                  #wmTl="ngModel"
+                  required
+                  class="w-full mt-1 px-3 py-2 rounded-md bg-[#1a1a1a] border text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#3ecf8e] border-[#333]"
+                  [class.border-red-500]="wmTl.invalid && wmTl.touched"
+                ></textarea>
+                <div
+                  *ngIf="wmTl.invalid && wmTl.touched"
+                  class="text-xs text-red-400 mt-1"
+                >
+                  Water Management (Tagalog) is required.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Harvest -->
+          <div class="border border-[#333] bg-[#141414] rounded-lg p-5">
+            <h3 class="text-lg font-semibold mb-4 text-gray-200">Harvest</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label class="text-sm font-medium text-gray-300"
+                  >English <span class="text-red-500">*</span></label
+                >
+                <textarea
+                  rows="4"
+                  name="harvest_en"
+                  [(ngModel)]="newCrop.harvest_en"
+                  #harvEn="ngModel"
+                  required
+                  class="w-full mt-1 px-3 py-2 rounded-md bg-[#1a1a1a] border text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#3ecf8e] border-[#333]"
+                  [class.border-red-500]="harvEn.invalid && harvEn.touched"
+                ></textarea>
+                <div
+                  *ngIf="harvEn.invalid && harvEn.touched"
+                  class="text-xs text-red-400 mt-1"
+                >
+                  Harvest (English) is required.
+                </div>
+              </div>
+
+              <div>
+                <label class="text-sm font-medium text-gray-300"
+                  >Tagalog <span class="text-red-500">*</span></label
+                >
+                <textarea
+                  rows="4"
+                  name="harvest_tl"
+                  [(ngModel)]="newCrop.harvest_tl"
+                  #harvTl="ngModel"
+                  required
+                  class="w-full mt-1 px-3 py-2 rounded-md bg-[#1a1a1a] border text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#3ecf8e] border-[#333]"
+                  [class.border-red-500]="harvTl.invalid && harvTl.touched"
+                ></textarea>
+                <div
+                  *ngIf="harvTl.invalid && harvTl.touched"
+                  class="text-xs text-red-400 mt-1"
+                >
+                  Harvest (Tagalog) is required.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <br />
+      <!-- SUBMIT BUTTON -->
+      <div class="text-right">
+        <button
+          class="px-6 py-3 bg-[#0f6b49] border border-[#1ea26f] rounded-lg text-white font-semibold hover:bg-[#0c5c3f] transition-colors"
+          type="submit"
+        >
+          {{ isEditMode ? "Update Crop" : "Save Crop" }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div
+  *ngIf="toast.show"
+  class="fixed top-5 right-5 z-[9999] min-w-[300px] max-w-[360px] rounded-xl px-5 py-4 border border-[#1e1e1e] bg-[#111111] text-gray-300 shadow-[0_0_15px_rgba(0,0,0,0.4)] flex items-center justify-between transition-all duration-300"
+  [style.opacity]="toast.show ? '1' : '0'"
+  [style.transform]="toast.show ? 'translateY(0)' : 'translateY(-10px)'"
+>
+  <!-- Left: Spinner + Message -->
+  <div class="flex items-center space-x-3">
+    <!-- Spinner -->
+    <svg
+      *ngIf="toast.type === 'loading'"
+      class="animate-spin h-4 w-4 text-gray-400"
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+    >
+      <circle
+        class="opacity-25"
+        cx="12"
+        cy="12"
+        r="10"
+        stroke="currentColor"
+        stroke-width="4"
+      ></circle>
+      <path
+        class="opacity-75"
+        fill="currentColor"
+        d="M4 12a8 8 0 018-8v8H4z"
+      ></path>
+    </svg>
+
+    <!-- Message -->
+    <p class="text-sm font-medium">
+      {{ toast.message }}
+    </p>
+  </div>
+
+  <!-- Close Button -->
+  <button
+    (click)="hideToast()"
+    class="text-gray-500 hover:text-gray-300 text-lg leading-none"
+  >
+    ✕
+  </button>
+</div>
