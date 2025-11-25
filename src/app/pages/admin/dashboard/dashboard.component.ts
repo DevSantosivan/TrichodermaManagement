@@ -134,4 +134,8 @@ export class DashboardComponent {
   onLogout() {
     this.router.navigate(['/']);
   }
+
+  openAddForm() {
+    this.router.navigate(['admin/crop/add']);
+  }
 }

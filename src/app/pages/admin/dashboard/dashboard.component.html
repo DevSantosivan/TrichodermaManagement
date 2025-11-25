@@ -69,13 +69,13 @@
           <i class="pi pi-video mr-3 text-gray-400"></i> Video Tutorials
         </li>
 
-        <li
+        <!-- <li
           routerLink="settings"
           routerLinkActive="bg-[#1e1e1e] text-white border border-[#2a2a2a]"
           class="flex items-center p-2 rounded-md cursor-pointer hover:bg-[#1a1a1a]"
         >
           <i class="pi pi-cog mr-3 text-gray-400"></i> Settings
-        </li>
+        </li> -->
       </ul>
     </div>
 
@@ -86,7 +86,8 @@
         <p class="text-gray-400">You can manage multiple crop here</p>
 
         <button
-          class="mt-3 w-full p-2 bg-[#3ae68d] text-black font-semibold rounded-md hover:bg-[#2fd67d] transition"
+          (click)="openAddForm()"
+          class="w-full mt-2 px-4 py-2 bg-[#0f6b49] border border-[#1ea26f] rounded-lg text-white font-semibold hover:bg-[#0c5c3f] transition-colors"
         >
           + Add Crops
         </button>
@@ -105,12 +106,6 @@
       </h1>
 
       <div class="flex items-center gap-4">
-        <button class="p-2 rounded-full hover:bg-[#1a1a1a] transition relative">
-          <i class="pi pi-bell text-gray-300 text-lg"></i>
-          <span
-            class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"
-          ></span>
-        </button>
         <button
           (click)="toggleProfileMenu()"
           class="flex items-center gap-2 hover:opacity-80 relative"
@@ -145,10 +140,6 @@
           (click)="closeProfileMenu()"
         >
           ⚙️ Account preferences
-        </button>
-
-        <button class="w-full text-left px-4 py-2 hover:bg-[#1a1a1a]">
-          🧪 Feature previews
         </button>
 
         <hr class="border-[#1f1f1f]" />

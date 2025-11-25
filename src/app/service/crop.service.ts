@@ -83,4 +83,49 @@ export class CropService {
     const { error } = await this.supabase.from('crops').delete().eq('id', id);
     if (error) throw error;
   }
+
+  async saveTrichodermaPrice(price: number): Promise<void> {
+    if (!price || price <= 0) throw new Error('Invalid price');
+
+    const key = 'trichoderma_price';
+
+    // Check if record already exists
+    const { data: existing, error: selectError } = await this.supabase
+      .from('settings')
+      .select('id, value')
+      .eq('key', key)
+      .single();
+
+    if (selectError && selectError.code !== 'PGRST116') {
+      // ignore "no rows" error
+      throw selectError;
+    }
+
+    if (existing) {
+      // Update existing
+      const { error: updateError } = await this.supabase
+        .from('settings')
+        .update({ value: price })
+        .eq('id', existing.id);
+      if (updateError) throw updateError;
+    } else {
+      // Insert new
+      const { error: insertError } = await this.supabase
+        .from('settings')
+        .insert([{ key, value: price }]);
+      if (insertError) throw insertError;
+    }
+  }
+
+  // ✅ GET Trichoderma price
+  async getTrichodermaPrice(): Promise<number | null> {
+    const { data, error } = await this.supabase
+      .from('settings')
+      .select('value')
+      .eq('key', 'trichoderma_price')
+      .single();
+
+    if (error && error.code !== 'PGRST116') throw error; // ignore "no rows found"
+    return data?.value ?? null;
+  }
 }

@@ -28,7 +28,7 @@ export class OverviewComponent implements OnInit {
   isGridView: boolean = false; // list view by default
   searchText: string = '';
 
-  trichodermaPrice = 120.5;
+  trichodermaPrice = 0;
   lastUpdated = new Date();
   totalVideos = 12; // example count
   totalFarmers = 57; // example count
@@ -78,28 +78,47 @@ export class OverviewComponent implements OnInit {
     this.showPriceModal = false;
   }
 
-  // SAVE PRICE
   async updatePrice() {
     if (!this.newPrice || this.newPrice <= 0) return;
 
     try {
-      // ❗ Replace with your own save service
+      // Show loading toast
+      this.showToast('Updating price...', 'loading');
 
+      // Save sa Supabase
+      await this.cropService.saveTrichodermaPrice(this.newPrice);
+
+      // Update UI
       this.trichodermaPrice = this.newPrice;
       this.lastUpdated = new Date();
-
       this.showPriceModal = false;
-      this.showToast('Price updated successfully', 'success');
+
+      // Show success toast with new price
+      this.showToast(
+        `Price updated successfully: ₱${this.newPrice.toFixed(2)}`,
+        'success'
+      );
     } catch (error) {
-      console.error(error);
-      this.showToast('Failed to update price', 'error');
+      console.error('Failed to save price:', error);
+      this.showToast('Failed to update price in Supabase', 'error');
     }
   }
 
   async ngOnInit() {
     await this.loadCrops();
+    await this.loadTrichodermaPrice(); // fetch current price
   }
-
+  async loadTrichodermaPrice() {
+    try {
+      const price = await this.cropService.getTrichodermaPrice();
+      if (price !== null) {
+        this.trichodermaPrice = price;
+        this.newPrice = price; // preload sa modal
+      }
+    } catch (error) {
+      console.error('Failed to fetch trichoderma price:', error);
+    }
+  }
   async loadCrops() {
     this.loading = true;
     try {

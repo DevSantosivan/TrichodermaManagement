@@ -6,6 +6,7 @@ import { WaterGuideComponent } from './water-guide/water-guide.component';
 import { VideoTutorialComponent } from './video-tutorial/video-tutorial.component';
 import { CropsComponent } from './crops/crops.component';
 import { AddCropComponent } from './add-crop/add-crop.component';
+import { RemidersAdminComponent } from './remiders-admin/remiders-admin.component';
 
 export const AdminRoutes: Routes = [
   {
@@ -18,7 +19,7 @@ export const AdminRoutes: Routes = [
       { path: 'crop', component: CropsComponent },
       { path: 'crop/add', component: AddCropComponent },
       { path: 'crop/edit/:id', component: AddCropComponent },
-      { path: 'watering-guide', component: WaterGuideComponent },
+      { path: 'watering-guide', component: RemidersAdminComponent },
       { path: 'video-tutorial', component: VideoTutorialComponent },
 
       // ✅ Correct path to your folder structure
