@@ -11,7 +11,7 @@
     class="fixed inset-y-0 left-0 w-64 bg-[#0f0f0f] border-r border-[#1f1f1f] text-gray-300 flex flex-col justify-between p-6 transition-transform duration-300 z-30 transform lg:translate-x-0"
     [ngClass]="{
       '-translate-x-full': !isMenuOpen,
-      'translate-x-0': isMenuOpen
+      'translate-x-0': isMenuOpen,
     }"
   >
     <div>
@@ -111,7 +111,7 @@
           class="flex items-center gap-2 hover:opacity-80 relative"
         >
           <img
-            src="assets/avatar.png"
+            src="https://static.vecteezy.com/system/resources/previews/005/544/718/original/profile-icon-design-free-vector.jpg"
             class="w-9 h-9 rounded-full border border-[#2a2a2a]"
           />
           <span class="text-gray-300">Admin</span>
@@ -129,18 +129,9 @@
         class="absolute top-20 right-8 w-64 bg-[#111111] border border-[#1f1f1f] rounded-xl shadow-xl py-2 text-sm"
         (click)="$event.stopPropagation()"
       >
-        <div class="px-4 py-2 font-semibold text-gray-200">
-          alvinhernandez090@gmail.com
-        </div>
+        <div class="px-4 py-2 font-semibold text-gray-200">admin@gmail.com</div>
 
         <hr class="border-[#1f1f1f]" />
-        <button
-          class="w-full text-left px-4 py-2 hover:bg-[#1a1a1a]"
-          routerLink="/admin/account-preferences"
-          (click)="closeProfileMenu()"
-        >
-          ⚙️ Account preferences
-        </button>
 
         <hr class="border-[#1f1f1f]" />
 

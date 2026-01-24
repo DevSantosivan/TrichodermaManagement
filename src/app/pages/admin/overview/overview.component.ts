@@ -1,11 +1,14 @@
-// overview.component.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { trigger, style, transition, animate } from '@angular/animations';
 import { DomSanitizer, SafeStyle } from '@angular/platform-browser';
+
 import { CropService } from '../../../service/crop.service';
+import { VideoService } from '../../../service/video-tutorial.service';
+
 import { Crop } from '../../../model/crop.model';
+import { Video } from '../../../model/video.model';
 
 @Component({
   selector: 'app-overview',
@@ -23,54 +26,60 @@ import { Crop } from '../../../model/crop.model';
   ],
 })
 export class OverviewComponent implements OnInit {
+  // ================= DATA =================
   crops: Crop[] = [];
-  loading = false;
-  isGridView: boolean = false; // list view by default
-  searchText: string = '';
+  videos: Video[] = [];
 
+  loading = false;
+  isGridView = false;
+  searchText = '';
+
+  // ================= SUMMARY =================
   trichodermaPrice = 0;
   lastUpdated = new Date();
-  totalVideos = 12; // example count
-  totalFarmers = 57; // example count
+  totalVideos = 0; // ✅ REAL COUNT
+  totalFarmers = 57; // sample
+
   safeBg: SafeStyle;
 
   constructor(
     private sanitizer: DomSanitizer,
-    private cropService: CropService
+    private cropService: CropService,
+    private videoService: VideoService, // ✅ INJECT VIDEO SERVICE
   ) {
     const imageUrl =
-      'https://th.bing.com/th/id/R.4180531fe234fb34545caae63f173b64?rik=I3hswxTSO83dIQ&riu=http%3a%2f%2futkarshagro.com%2fcdn%2fshop%2farticles%2fWhatsApp-Image-2022-10-07-at-12.22.00-PM-1.jpg%3fv%3d1683696382&ehk=owb7Vs0Q4CQ8iiK5kJGLzsK44dGCB8b6H4ZMdqRhZ8E%3d&risl=&pid=ImgRaw&r=0';
+      'https://th.bing.com/th/id/R.4180531fe234fb34545caae63f173b64';
     this.safeBg = this.sanitizer.bypassSecurityTrustStyle(`url('${imageUrl}')`);
   }
 
+  // ================= TOAST =================
   toast = {
     show: false,
     message: '',
-    type: '', // "loading" | "success" | "error"
+    type: '' as 'loading' | 'success' | 'error',
   };
 
   showToast(
     message: string,
-    type: 'loading' | 'success' | 'error' = 'success'
+    type: 'loading' | 'success' | 'error' = 'success',
   ) {
-    this.toast.message = message;
-    this.toast.type = type;
-    this.toast.show = true;
+    this.toast = { show: true, message, type };
 
     if (type !== 'loading') {
-      setTimeout(() => this.hideToast(), 2500);
+      setTimeout(() => (this.toast.show = false), 2500);
     }
   }
 
   hideToast() {
     this.toast.show = false;
   }
-  // Modal controller
+
+  // ================= PRICE MODAL =================
   showPriceModal = false;
-  newPrice: number = 0;
+  newPrice = 0;
 
   openEditPriceModal() {
-    this.newPrice = this.trichodermaPrice; // preload current price
+    this.newPrice = this.trichodermaPrice;
     this.showPriceModal = true;
   }
 
@@ -82,59 +91,73 @@ export class OverviewComponent implements OnInit {
     if (!this.newPrice || this.newPrice <= 0) return;
 
     try {
-      // Show loading toast
       this.showToast('Updating price...', 'loading');
 
-      // Save sa Supabase
       await this.cropService.saveTrichodermaPrice(this.newPrice);
 
-      // Update UI
       this.trichodermaPrice = this.newPrice;
       this.lastUpdated = new Date();
       this.showPriceModal = false;
 
-      // Show success toast with new price
       this.showToast(
         `Price updated successfully: ₱${this.newPrice.toFixed(2)}`,
-        'success'
+        'success',
       );
     } catch (error) {
-      console.error('Failed to save price:', error);
-      this.showToast('Failed to update price in Supabase', 'error');
+      console.error('❌ Failed to save price:', error);
+      this.showToast('Failed to update price', 'error');
     }
   }
 
+  // ================= INIT =================
   async ngOnInit() {
     await this.loadCrops();
-    await this.loadTrichodermaPrice(); // fetch current price
+    await this.loadVideos(); // ✅ LOAD VIDEO COUNT
+    await this.loadTrichodermaPrice();
   }
+
+  // ================= LOADERS =================
+  async loadCrops() {
+    try {
+      this.loading = true;
+      this.crops = await this.cropService.getCrops();
+    } catch (error) {
+      console.error('❌ Error fetching crops:', error);
+    } finally {
+      this.loading = false;
+    }
+  }
+
+  async loadVideos() {
+    try {
+      const videos = await this.videoService.getVideos();
+      this.videos = videos;
+      this.totalVideos = videos.length; // ✅ ACTUAL COUNT
+    } catch (error) {
+      console.error('❌ Error fetching videos:', error);
+      this.totalVideos = 0;
+    }
+  }
+
   async loadTrichodermaPrice() {
     try {
       const price = await this.cropService.getTrichodermaPrice();
       if (price !== null) {
         this.trichodermaPrice = price;
-        this.newPrice = price; // preload sa modal
+        this.newPrice = price;
       }
     } catch (error) {
-      console.error('Failed to fetch trichoderma price:', error);
+      console.error('❌ Failed to fetch price:', error);
     }
-  }
-  async loadCrops() {
-    this.loading = true;
-    try {
-      this.crops = await this.cropService.getCrops();
-    } catch (error) {
-      console.error('❌ Error fetching crops:', error);
-    }
-    this.loading = false;
   }
 
+  // ================= HELPERS =================
   filteredCrops(): Crop[] {
     const search = this.searchText.toLowerCase();
     return this.crops.filter(
       (c) =>
         c.title_en.toLowerCase().includes(search) ||
-        c.title_tl.toLowerCase().includes(search)
+        c.title_tl.toLowerCase().includes(search),
     );
   }
 
@@ -142,16 +165,9 @@ export class OverviewComponent implements OnInit {
     this.isGridView = isGrid;
   }
 
-  openAddCropModal() {
-    console.log('Open add crop modal');
-  }
-
-  editCrop(crop: Crop) {
-    console.log('Edit crop', crop);
-  }
-
   async deleteCrop(crop: Crop) {
     if (!crop.id) return;
+
     try {
       await this.cropService.deleteCrop(crop.id);
       await this.loadCrops();

@@ -34,7 +34,7 @@ export class VideoTutorialComponent implements OnInit {
 
   constructor(
     private cropService: CropService,
-    private videoService: VideoService
+    private videoService: VideoService,
   ) {}
 
   async ngOnInit() {
@@ -45,7 +45,7 @@ export class VideoTutorialComponent implements OnInit {
   // 🟦 TOAST FUNCTIONS
   showToast(
     message: string,
-    type: 'loading' | 'success' | 'error' = 'success'
+    type: 'loading' | 'success' | 'error' = 'success',
   ) {
     this.toast = { show: true, message, type };
 
@@ -91,7 +91,7 @@ export class VideoTutorialComponent implements OnInit {
     return this.videos.filter(
       (v) =>
         v.title.toLowerCase().includes(text) ||
-        v.croptype.toLowerCase().includes(text)
+        v.croptype.toLowerCase().includes(text),
     );
   }
 
