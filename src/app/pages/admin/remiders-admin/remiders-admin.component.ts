@@ -51,7 +51,7 @@ export class RemidersAdminComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private reminderService: CropReminderService,
-    private cropService: CropService
+    private cropService: CropService,
   ) {}
 
   ngOnInit() {
@@ -60,9 +60,16 @@ export class RemidersAdminComponent implements OnInit {
     this.loadReminders();
   }
 
+  // Type matches the ID type
+  showReminderMenuForId: string | null = null;
+
+  toggleReminderMenu(id: string | undefined) {
+    if (!id) return; // safety check
+    this.showReminderMenuForId = this.showReminderMenuForId === id ? null : id;
+  }
   showToast(
     message: string,
-    type: 'loading' | 'success' | 'error' = 'success'
+    type: 'loading' | 'success' | 'error' = 'success',
   ) {
     this.toast.message = message;
     this.toast.type = type;
@@ -265,7 +272,7 @@ export class RemidersAdminComponent implements OnInit {
     return this.reminders.filter(
       (r) =>
         r.crop_name_en.toLowerCase().includes(s) ||
-        r.crop_name_tl.toLowerCase().includes(s)
+        r.crop_name_tl.toLowerCase().includes(s),
     );
   }
 }

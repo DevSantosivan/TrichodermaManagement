@@ -60,7 +60,7 @@ export class WaterGuideComponent implements OnInit {
 
   showToast(
     message: string,
-    type: 'loading' | 'success' | 'error' = 'success'
+    type: 'loading' | 'success' | 'error' = 'success',
   ) {
     this.toast.message = message;
     this.toast.type = type;
@@ -78,7 +78,7 @@ export class WaterGuideComponent implements OnInit {
 
   constructor(
     private cropService: CropService,
-    private waterGuideService: WaterGuideService
+    private waterGuideService: WaterGuideService,
   ) {}
 
   ngOnInit(): void {
@@ -124,7 +124,7 @@ export class WaterGuideComponent implements OnInit {
     return this.guides.filter(
       (g) =>
         g.cropName?.toLowerCase().includes(search) ||
-        g.description.toLowerCase().includes(search)
+        g.description.toLowerCase().includes(search),
     );
   }
 
@@ -229,12 +229,12 @@ export class WaterGuideComponent implements OnInit {
           tasks: this.selectedGuideToEdit.tasks.length
             ? this.selectedGuideToEdit.tasks
             : [],
-        }
+        },
       );
 
       const index = this.guides.findIndex((g) => g.id === updatedGuide.id);
       const selectedCrop = this.crops.find(
-        (c) => c.id === updatedGuide.crop_id
+        (c) => c.id === updatedGuide.crop_id,
       );
 
       this.guides[index] = {
@@ -253,6 +253,23 @@ export class WaterGuideComponent implements OnInit {
     }
   }
 
+  showMenuForId: string | null = null;
+  guideToDelete: WateringGuideWithCrop | null = null;
+
+  toggleMenu(id?: string) {
+    if (!id) return;
+    this.showMenuForId = this.showMenuForId === id ? null : id;
+  }
+
+  openEditFromMenu(guide: any) {
+    this.showMenuForId = null;
+    this.openEditModal(guide); // existing modal mo
+  }
+
+  openDeleteModal(guide: any) {
+    this.showMenuForId = null;
+    this.guideToDelete = guide;
+  }
   // ---------------- Delete Guide ----------------
   async deleteGuide(guide: WateringGuideWithCrop) {
     if (!guide.id) return;

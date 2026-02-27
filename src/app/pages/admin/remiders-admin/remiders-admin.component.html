@@ -86,19 +86,33 @@
             </p>
           </div>
         </td>
-        <td class="px-4 py-3 text-center">
+        <td class="px-4 py-3 text-center relative">
+          <!-- Three-dot button -->
           <button
-            (click)="openEdit(r)"
-            class="px-3 py-1 w-full bg-[#3ae68d]/20 text-[#3ae68d] rounded hover:bg-[#3ae68d]/30"
+            (click)="toggleReminderMenu(r.id!)"
+            class="p-2 rounded-full hover:bg-[#222] text-gray-300 transition"
           >
-            Edit
+            ⋮
           </button>
-          <button
-            (click)="delete(r)"
-            class="mt-2 px-3 py-1 w-full bg-red-800/20 text-red-400 rounded hover:bg-red-900/30"
+
+          <!-- Dropdown Actions -->
+          <div
+            *ngIf="showReminderMenuForId === r.id"
+            class="absolute right-2 top-12 bg-[#111] border border-[#2b2b2b] rounded-lg shadow-xl w-28 z-20"
           >
-            Delete
-          </button>
+            <button
+              (click)="openEdit(r)"
+              class="w-full text-left px-4 py-2 hover:bg-[#2a2a2a] text-yellow-400"
+            >
+              ✏️ Edit
+            </button>
+            <button
+              (click)="delete(r)"
+              class="w-full text-left px-4 py-2 hover:bg-[#2a2a2a] text-red-400"
+            >
+              🗑️ Delete
+            </button>
+          </div>
         </td>
       </tr>
     </tbody>
