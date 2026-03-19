@@ -4,6 +4,8 @@ import { NgForm, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { CropService } from '../../../service/crop.service';
 import { Crop } from '../../../model/crop.model';
+import  { CropReminder } from '../../../model/crop-reminder.model';
+import { CropReminderService } from '../../../service/reminder.service';
 
 @Component({
   selector: 'app-add-crop',
@@ -49,7 +51,8 @@ export class AddCropComponent implements OnInit {
   constructor(
     private cropService: CropService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private cropReminderService: CropReminderService
   ) {}
 
   // ============= INIT =============

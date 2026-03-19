@@ -1,0 +1,222 @@
+<div class="max-w-6xl mx-auto p-6 bg-[#0d0d0d] min-h-screen text-gray-200">
+  <!-- HEADER -->
+  <div class="flex justify-between items-center mb-8">
+    <div>
+      <h1 class="text-2xl font-bold">Account Manager</h1>
+      <p class="text-gray-400">Manage user accounts</p>
+    </div>
+
+    <button
+      (click)="openAddForm()"
+      class="px-4 py-2 bg-[#0f6b49] border border-[#1ea26f] rounded-lg text-white hover:bg-[#0c5c3f]"
+    >
+      + Add Account
+    </button>
+  </div>
+
+  <!-- SEARCH -->
+  <input
+    type="search"
+    [(ngModel)]="searchText"
+    placeholder="Search users..."
+    class="w-full sm:w-64 mb-4 border border-[#1f1f1f] rounded px-3 py-2 bg-[#111111] text-gray-200"
+  />
+
+  <!-- EMPTY -->
+  <div *ngIf="accounts.length === 0" class="text-center py-10 text-gray-500">
+    No accounts found
+  </div>
+
+  <!-- TABLE -->
+  <table
+    *ngIf="accounts.length > 0"
+    class="w-full table-fixed border border-[#1f1f1f] rounded-xl text-sm"
+  >
+    <!-- HEADER -->
+    <thead class="bg-[#111111] border-b border-[#1f1f1f]">
+      <tr>
+        <th class="px-4 py-3 w-[35%] text-left">User</th>
+        <th class="w-[30%] text-left">Email</th>
+        <th class="w-[20%] text-left">Status</th>
+        <th class="w-[20%] text-left">Create At</th>
+        <th class="w-[15%] text-center">Actions</th>
+      </tr>
+    </thead>
+
+    <!-- BODY -->
+    <tbody>
+      <tr
+        *ngFor="let acc of filteredAccounts()"
+        class="border-b border-[#1f1f1f] hover:bg-[#151515]"
+        (click)="goToProfile(acc.id)"
+      >
+        <!-- USER -->
+        <td class="px-4 py-3">
+          <div class="flex items-center gap-3">
+            <img
+              [src]="
+                'https://img.freepik.com/premium-vector/circle-framed-portrait-farmer-with-hat-uniform-standing-front-wheat-field_261737-1161.jpg?w=2000'
+              "
+              class="w-10 h-10 rounded-full border border-[#1f1f1f]"
+            />
+            <span>{{ acc.name }}</span>
+          </div>
+        </td>
+
+        <!-- EMAIL -->
+        <td class="text-gray-400 truncate">
+          {{ acc.email }}
+        </td>
+
+        <!-- STATUS -->
+        <td>
+          <span
+            [ngClass]="{
+              'text-green-400': acc.status === 'active',
+              'text-red-400': acc.status === 'blocked',
+            }"
+          >
+            {{ acc.status }}
+          </span>
+        </td>
+        <td class="text-gray-400 truncate">
+          {{ acc.created_at | date: "short" }}
+        </td>
+        <!-- ACTIONS -->
+        <td class="relative text-center">
+          <button
+            (click)="toggleMenu(acc.id); $event.stopPropagation()"
+            class="p-2 hover:bg-[#222] rounded"
+          >
+            ⋮
+          </button>
+
+          <div
+            *ngIf="showMenuId === acc.id"
+            (click)="$event.stopPropagation()"
+            class="absolute right-2 top-10 bg-[#111] border border-[#2b2b2b] rounded-lg w-32 z-20"
+          >
+            <button
+              (click)="openEdit(acc); $event.stopPropagation()"
+              class="block w-full text-left px-4 py-2 hover:bg-[#222] text-[#3ae68d]"
+            >
+              Edit
+            </button>
+
+            <button
+              (click)="toggleBlock(acc); $event.stopPropagation()"
+              class="block w-full text-left px-4 py-2 hover:bg-[#222] text-yellow-400"
+            >
+              {{ acc.status === "active" ? "Block" : "Unblock" }}
+            </button>
+
+            <button
+              (click)="deleteAccount(acc.id); $event.stopPropagation()"
+              class="block w-full text-left px-4 py-2 hover:bg-red-900/40 text-red-400"
+            >
+              Delete
+            </button>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- MODAL -->
+  <div
+    *ngIf="isEditing"
+    class="fixed inset-0 flex items-center justify-center bg-black/50 z-50"
+  >
+    <div
+      class="bg-[#111111] p-6 rounded-xl w-full max-w-md border border-[#1f1f1f]"
+    >
+      <h2 class="text-[#3ae68d] mb-4 text-lg">
+        {{ selectedAccount?.id ? "Edit Account" : "Add Account" }}
+      </h2>
+
+      <form (ngSubmit)="saveAccount()" class="space-y-4">
+        <!-- NAME -->
+        <input
+          type="text"
+          placeholder="Name"
+          [(ngModel)]="selectedAccount.name"
+          name="name"
+          required
+          class="w-full p-2 bg-[#0f0f0f] border border-[#1f1f1f] rounded"
+        />
+
+        <!-- EMAIL -->
+        <input
+          type="email"
+          placeholder="Email"
+          [(ngModel)]="selectedAccount.email"
+          name="email"
+          required
+          class="w-full p-2 bg-[#0f0f0f] border border-[#1f1f1f] rounded"
+        />
+
+        <!-- PASSWORD -->
+        <input
+          type="password"
+          placeholder="Password"
+          [(ngModel)]="selectedAccount.password"
+          name="password"
+          class="w-full p-2 bg-[#0f0f0f] border border-[#1f1f1f] rounded"
+          [required]="!selectedAccount.id"
+        />
+
+        <!-- BUTTONS -->
+        <button
+          type="submit"
+          class="w-full py-2 bg-[#0f6b49] border border-[#1ea26f] rounded text-white hover:bg-[#0c5c3f]"
+        >
+          Save
+        </button>
+
+        <button
+          type="button"
+          (click)="cancelEdit()"
+          class="w-full text-gray-400"
+        >
+          Cancel
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+<!-- TOAST -->
+<div
+  *ngIf="toast.show"
+  class="fixed top-5 right-5 z-[9999] min-w-[300px] max-w-[360px] rounded-xl px-5 py-4 border border-[#1e1e1e] bg-[#111111] text-gray-300 shadow-[0_0_15px_rgba(0,0,0,0.4)] flex items-center justify-between transition-all duration-300"
+  [style.opacity]="toast.show ? '1' : '0'"
+  [style.transform]="toast.show ? 'translateY(0)' : 'translateY(-10px)'"
+>
+  <div class="flex items-center space-x-3">
+    <!-- Spinner -->
+    <svg
+      *ngIf="toast.type === 'loading'"
+      class="animate-spin h-4 w-4 text-gray-400"
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+    >
+      <circle
+        cx="12"
+        cy="12"
+        r="10"
+        stroke="currentColor"
+        stroke-width="4"
+      ></circle>
+      <path fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+    </svg>
+
+    <p class="text-sm font-medium">{{ toast.message }}</p>
+  </div>
+
+  <button
+    (click)="hideToast()"
+    class="text-gray-500 hover:text-gray-300 text-lg"
+  >
+    ✕
+  </button>
+</div>

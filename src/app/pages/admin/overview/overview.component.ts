@@ -9,6 +9,7 @@ import { VideoService } from '../../../service/video-tutorial.service';
 
 import { Crop } from '../../../model/crop.model';
 import { Video } from '../../../model/video.model';
+import { UserService } from '../../../service/user.serice';
 
 @Component({
   selector: 'app-overview',
@@ -39,6 +40,7 @@ export class OverviewComponent implements OnInit {
   lastUpdated = new Date();
   totalVideos = 0; // ✅ REAL COUNT
   totalFarmers = 57; // sample
+  totalAccounts = 0; // ✅ REAL COUNT
 
   safeBg: SafeStyle;
 
@@ -46,6 +48,7 @@ export class OverviewComponent implements OnInit {
     private sanitizer: DomSanitizer,
     private cropService: CropService,
     private videoService: VideoService, // ✅ INJECT VIDEO SERVICE
+    private userService: UserService, // ✅ INJECT USER SERVICE
   ) {
     const imageUrl =
       'https://th.bing.com/th/id/R.4180531fe234fb34545caae63f173b64';
@@ -114,6 +117,7 @@ export class OverviewComponent implements OnInit {
     await this.loadCrops();
     await this.loadVideos(); // ✅ LOAD VIDEO COUNT
     await this.loadTrichodermaPrice();
+    await this.loadAccounts(); // ✅ LOAD ACCOUNT COUNT
   }
 
   // ================= LOADERS =================
@@ -136,6 +140,17 @@ export class OverviewComponent implements OnInit {
     } catch (error) {
       console.error('❌ Error fetching videos:', error);
       this.totalVideos = 0;
+    }
+  }
+
+  async loadAccounts() {
+    try {
+      // Assuming your service has getUsers() that returns an array
+      const accounts = await this.userService.getUsers();
+      this.totalAccounts = accounts.length;
+    } catch (error) {
+      console.error('❌ Error fetching accounts:', error);
+      this.totalAccounts = 0;
     }
   }
 

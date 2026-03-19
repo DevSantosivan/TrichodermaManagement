@@ -1,0 +1,62 @@
+<div class="max-w-6xl mx-auto p-6 bg-[#0d0d0d] min-h-screen text-gray-200">
+  <!-- HEADER -->
+  <div class="flex justify-between items-center mb-8">
+    <div>
+      <h1 class="text-2xl font-bold">User Profile</h1>
+      <p class="text-gray-400">View and chat with the user</p>
+    </div>
+
+    <div class="flex gap-2">
+      <button
+        (click)="goBack()"
+        class="px-4 py-2 bg-[#1a1a1a] border border-[#2b2b2b] rounded-lg hover:bg-[#222]"
+      >
+        ← Back to Accounts
+      </button>
+
+      <!-- <button
+        *ngIf="user"
+        (click)="goToChat(user.id)"
+        class="px-4 py-2 bg-[#0f6b49] border border-[#1ea26f] rounded-lg text-white hover:bg-[#0c5c3f]"
+      >
+        Chat
+      </button> -->
+    </div>
+  </div>
+
+  <!-- PROFILE CARD -->
+  <div
+    *ngIf="user"
+    class="bg-[#111111] p-6 rounded-xl border border-[#1f1f1f] shadow-lg"
+  >
+    <div class="flex items-center gap-6 mb-6">
+      <img
+        [src]="
+          'https://img.freepik.com/premium-vector/circle-framed-portrait-farmer-with-hat-uniform-standing-front-wheat-field_261737-1161.jpg?w=2000'
+        "
+        class="w-24 h-24 rounded-full border border-[#1f1f1f]"
+      />
+      <div>
+        <p><strong>ID:</strong> {{ user.id }}</p>
+        <h2 class="text-2xl font-bold text-gray-100">{{ user.name }}</h2>
+        <p class="text-gray-400">{{ user.email }}</p>
+        <span
+          class="px-2 py-1 mt-1 rounded text-sm"
+          [ngClass]="{
+            'bg-green-500 text-white': user.status === 'active',
+            'bg-red-500 text-white': user.status === 'blocked',
+          }"
+        >
+          {{ user.status }}
+        </span>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 text-gray-300">
+      <p><strong>Created At:</strong> {{ user.created_at | date: "medium" }}</p>
+      <!-- Optional fields -->
+      <!-- <p *ngIf="user.role"><strong>Role:</strong> {{ user.role }}</p>
+      <p *ngIf="user.phone"><strong>Phone:</strong> {{ user.phone }}</p> -->
+    </div>
+  </div>
+</div>

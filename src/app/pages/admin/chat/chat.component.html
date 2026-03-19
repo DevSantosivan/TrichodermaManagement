@@ -1,0 +1,85 @@
+<div class="max-w-6xl mx-auto p-6 bg-[#0d0d0d] min-h-screen text-gray-200">
+  <!-- Header -->
+  <div
+    class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4"
+  >
+    <div>
+      <h1 class="text-2xl font-bold text-gray-200">Admin Chat Manager</h1>
+      <p class="text-gray-400 mt-1">View and respond to user chats</p>
+    </div>
+    <div class="flex gap-3 mt-4 sm:mt-0">
+      <input
+        type="search"
+        [(ngModel)]="searchText"
+        placeholder="Search users..."
+        class="px-3 py-2 rounded border border-[#1f1f1f] bg-[#111111] text-gray-200 focus:ring-2 focus:ring-[#3ae68d]"
+      />
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="flex justify-center items-center h-64">
+    <svg
+      class="animate-spin h-10 w-10 text-[#3ae68d]"
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+    >
+      <circle
+        class="opacity-25"
+        cx="12"
+        cy="12"
+        r="10"
+        stroke="currentColor"
+        stroke-width="4"
+      ></circle>
+      <path
+        class="opacity-75"
+        fill="currentColor"
+        d="M4 12a8 8 0 018-8v8H4z"
+      ></path>
+    </svg>
+  </div>
+
+  <!-- No Chats -->
+  <div
+    *ngIf="!loading && chats.length === 0"
+    class="text-center py-16 text-gray-500"
+  >
+    📭 No chats found.
+  </div>
+
+  <!-- Chat List -->
+  <div *ngIf="!loading && chats.length > 0" class="space-y-4">
+    <div
+      *ngFor="let chat of filteredChats"
+      (click)="openChat(chat)"
+      class="flex items-center justify-between bg-[#111111] hover:bg-[#161616] p-4 rounded-xl cursor-pointer transition group"
+    >
+      <div class="flex items-center gap-4">
+        <div
+          class="w-12 h-12 rounded-full bg-green-600 flex items-center justify-center text-white font-bold text-lg"
+        >
+          {{ chat.name[0] }}
+        </div>
+        <div>
+          <p class="font-semibold text-gray-200">{{ chat.name }}</p>
+          <p class="text-gray-400 text-sm line-clamp-1">
+            {{ chat.lastMessage }}
+          </p>
+        </div>
+      </div>
+      <div class="flex flex-col items-end">
+        <span class="text-gray-400 text-xs">{{
+          chat.time | date: "shortTime"
+        }}</span>
+        <span
+          *ngIf="chat.unreadCount > 0"
+          class="bg-[#3ae68d] text-black text-xs font-bold px-2 py-0.5 rounded-full mt-1"
+        >
+          {{ chat.unreadCount }}
+        </span>
+      </div>
+    </div>
+  </div>
+</div>

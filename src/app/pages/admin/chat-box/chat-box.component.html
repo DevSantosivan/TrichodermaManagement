@@ -1,0 +1,65 @@
+<div
+  class="max-w-4xl mx-auto p-6 bg-[#0d0d0d] min-h-screen text-gray-200 flex flex-col"
+>
+  <!-- Header -->
+  <div class="flex items-center gap-4 mb-6 border-b border-[#1f1f1f] pb-4">
+    <button
+      (click)="goBack()"
+      class="text-gray-400 hover:text-[#3ae68d] text-2xl font-bold"
+    >
+      ←
+    </button>
+    <div
+      class="w-12 h-12 rounded-full bg-green-600 flex items-center justify-center text-white font-bold text-lg"
+    >
+      {{ user?.name[0] }}
+    </div>
+    <div>
+      <p class="font-semibold text-gray-200">{{ user?.name }}</p>
+      <p class="text-gray-400 text-sm">{{ user?.email }}</p>
+    </div>
+  </div>
+
+  <!-- Messages -->
+  <div class="flex-1 overflow-y-auto mb-4" #scrollContainer>
+    <div
+      *ngFor="let msg of messages"
+      class="mb-2 flex"
+      [ngClass]="{
+        'justify-end': msg.sender === 'admin',
+        'justify-start': msg.sender === 'user',
+      }"
+    >
+      <div
+        class="max-w-xs p-3 rounded-xl text-sm"
+        [ngClass]="
+          msg.sender === 'admin'
+            ? 'bg-[#3ae68d] text-black'
+            : 'bg-[#111111] text-gray-200'
+        "
+      >
+        {{ msg.content }}
+        <div class="text-xs text-gray-400 mt-1 text-right">
+          {{ msg.time | date: "shortTime" }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Input -->
+  <form (ngSubmit)="sendMessage()" class="flex gap-2">
+    <input
+      [(ngModel)]="newMessage"
+      name="message"
+      placeholder="Type a message..."
+      required
+      class="flex-1 px-3 py-2 rounded-xl bg-[#111111] border border-[#1f1f1f] text-gray-200 focus:ring-2 focus:ring-[#3ae68d]"
+    />
+    <button
+      type="submit"
+      class="px-4 py-2 bg-[#3ae68d] text-black font-semibold rounded-xl hover:bg-[#30c471] transition"
+    >
+      Send
+    </button>
+  </form>
+</div>
