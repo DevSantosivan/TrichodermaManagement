@@ -104,19 +104,36 @@ export class ChatService {
   }
   /** Send a new message as admin */
   async sendMessage(userId: string, content: string) {
+    if (!content.trim()) return;
+
+    const now = new Date().toISOString();
+
+    // 1️⃣ Insert message
     const { data, error } = await this.supabase
       .from('messages')
       .insert([
         {
-          user_id: userId, // IMPORTANT
+          user_id: userId,
           sender: 'admin',
           content: content,
+          created_at: now,
         },
       ])
       .select();
 
     if (error) throw error;
 
+    // 2️⃣ UPDATE chats table
+    await this.supabase
+      .from('chats')
+      .update({
+        last_message: content,
+        unread_count: 0, // ⭐ RESET kapag admin nag send
+        updated_at: now,
+      })
+      .eq('user_id', userId);
+
+    // 3️⃣ Update UI
     const current = this.messages$.value;
 
     this.messages$.next([
