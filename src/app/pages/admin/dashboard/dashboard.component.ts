@@ -29,7 +29,7 @@ export class DashboardComponent {
     private cropService: CropService,
     private videoService: VideoService,
     private waterService: WaterGuideService,
-    private router: Router
+    private router: Router,
   ) {}
 
   /** NAVBAR TOGGLE ---------------------------------------- */
@@ -91,15 +91,18 @@ export class DashboardComponent {
         c.title_en.toLowerCase().includes(q) ||
         c.title_tl.toLowerCase().includes(q) ||
         c.description_en.toLowerCase().includes(q) ||
-        c.description_tl.toLowerCase().includes(q)
+        c.description_tl.toLowerCase().includes(q),
     );
 
-    this.results.videos = videos.filter((v) =>
-      v.title.toLowerCase().includes(q)
-    );
+    this.results.videos = videos.filter((v) => {
+      const en = v.title_en?.toLowerCase() || '';
+      const tl = v.title_tl?.toLowerCase() || '';
+
+      return en.includes(q) || tl.includes(q);
+    });
 
     this.results.guides = guides.filter((g) =>
-      g.description.toLowerCase().includes(q)
+      g.description.toLowerCase().includes(q),
     );
 
     this.showEmpty =

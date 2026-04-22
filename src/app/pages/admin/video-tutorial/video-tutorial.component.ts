@@ -87,12 +87,16 @@ export class VideoTutorialComponent implements OnInit {
   }
 
   filteredVideos(): Video[] {
-    const text = this.searchText.toLowerCase();
-    return this.videos.filter(
-      (v) =>
-        v.title.toLowerCase().includes(text) ||
-        v.croptype.toLowerCase().includes(text),
-    );
+    const text = this.searchText?.trim().toLowerCase() || '';
+
+    if (!text) return this.videos;
+
+    return this.videos.filter((v) => {
+      const title = v.title_en?.toLowerCase() || '';
+      const crop = v.croptype?.toLowerCase() || '';
+
+      return title.includes(text) || crop.includes(text);
+    });
   }
 
   playVideo(video: Video) {
@@ -122,7 +126,12 @@ export class VideoTutorialComponent implements OnInit {
 
   // 🟦 SAVE VIDEO (with toast)
   async saveVideo() {
-    if (!this.editedVideo.title || !this.editedVideo.croptype) return;
+    if (
+      !this.editedVideo.title_en ||
+      !this.editedVideo.title_tl ||
+      !this.editedVideo.croptype
+    )
+      return;
 
     this.showToast('Saving video...', 'loading');
 
@@ -136,7 +145,8 @@ export class VideoTutorialComponent implements OnInit {
 
       const videoData: Video = {
         id: this.editedVideo.id,
-        title: this.editedVideo.title!,
+        title_en: this.editedVideo.title_en!,
+        title_tl: this.editedVideo.title_tl!,
         description: this.editedVideo.description,
         croptype: this.editedVideo.croptype!,
         url: fileUrl,
